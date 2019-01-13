@@ -11,6 +11,7 @@ data_raw <- train_product %>%
   mutate(weather = 1) %>%
   spread(`Weather Index`, weather, fill = 0)
 
+# restrict model parameters if neccecary
 date_from <- min(train_product$date)  
 date_to <- max(train_product$date) 
 list_of_products <- unique(train_product$product_id)
@@ -19,91 +20,63 @@ list_of_products <- unique(train_product$product_id)
 #---------------Code for building MMM----------------------
 ###########################################################
 
-product <- 0  # choose market
+product <- 0  # choose product
+adstock_rate <- 0.8
 
 dates <- data_raw %>% 
   filter(product_id == product) %>%
-  select(Date) %>%
-  mutate(Date = ymd(Date)) %>%
-  filter(Date >= date_from, Date <= date_to) %>%
+  select(date) %>%
+  mutate(date = ymd(date)) %>%
+  filter(date >= date_from, date <= date_to) %>%
   as.vector()
 
 data <- data_raw %>% 
-  mutate(Date = ymd(Date)) %>%
-  group_by(country) %>% mutate(
+  mutate(Date = ymd(date)) %>%
+  group_by(product_id) %>% mutate(
 
 #-----INPUT NEW VARIABLES HERE---------
-TV.costs_Adstock = adstock(TV.costs, rate = 0.1), #Adstockrates <- tibble(Country = list_of_markets, Adstock = c(0.4, 0.8, 0.8, 0.92, 0.8)) 
+TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate), #Adstockrates <- tibble(Country = list_of_markets, Adstock = c(0.4, 0.8, 0.8, 0.92, 0.8)) 
 #Day = ifelse(weekdays(Date) == "Monday", 0, weekdays(Date)),
-DayWednesday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
+DayFriday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
 DaySaturday = ifelse(weekdays(Date) == "Saturday", 1, 0),
 DaySunday = ifelse(weekdays(Date) == "Sunday", 1, 0),
-Adwords_CTR =  adwords.clicks / adwords.impressions,
-Marketing_costs_excl_TV = Marketing.costs - TV.costs,
-Marketing_Costs_Adstock = adstock(Marketing.costs, rate = 0.3),
-xmas = ifelse(Date %in% dmy(c('25/12/2017', '25/12/2016')), 1 ,0), #dummy variable
-subsidy_per_unit = subsidy.cost / card.reade.owner,
+xmas = ifelse(Date %in% dmy(c('25/12/2017', '25/12/2016', '25/12/2015', '25/12/2014')), 1 ,0), #dummy variable
 day_number = day(Date),
-Facebook_CTR = facebook.clicks / facebook.impressions,
-CRO_to_signups_Ratio = card.reade.owner / signups,
+month = month(Date),
 #Seasonality = predict(loess(Visibility ~ day_number, span=0.15), day_number)
-Seasonality = rollmean(x = Temperature.Fahrenheit, 30, align = "right", fill = NA),
-Subsidy_per_unit_squared = subsidy_per_unit ^ 2
-
+#Seasonality = rollmean(x = Temperature.Fahrenheit, 30, align = "right", fill = NA)
+exchange_rate_lag1 = lag(`Exchange Rate`),
+exchange_rate_moving_av = rollmean(`Exchange Rate`, 10, fill =  "extend", align = "right")
 
 ) %>% 
 ungroup() %>%
   filter(Date >= date_from, Date <= date_to) %>%
-  select(
+  select( # try transmute here
 # --------INPUT VARIABLE NAMES HERE -------   
 Date,
-#Dep_Var = card.reade.owner,
-Dep_Var = signups,
-#card.reade.owner,
+product_id,
+Dep_Var = sessions,
+#bookings,
 #Day,
-DayWednesday,
+DayFriday,
 DaySaturday,
 DaySunday,
-country,
-#CRO_to_signups_Ratio,
-#Dep_Var = visitors,
-#Paid.ads.Visitors,
-#signups,
-#subsidy.cost,
-#subsidy_per_unit,
-Subsidy_per_unit_squared,
-#TV.costs,
-#Marketing.costs, 
-Marketing_Costs_Adstock,
-#Total.Costs,       
-#tpv,
+month,
+TV_adstock,
 xmas,
-#adwords.clicks,
-#adwords.impressions, 
-#facebook.clicks,
-#facebook.impressions,
-trends.iZettle ,     
-trends.paypal.here,
-Seasonality,
-trends.squareup,
-#trends.sumup,
-trends.Worldpay,
-Temperature.Fahrenheit,
-#Rainfall,
-Visibility,
-Humidity,
-Cloud.Coverage,
-#Avg..position,
-Adwords_CTR,
-Facebook_CTR,
-#Marketing_costs_excl_TV,
-TV.costs_Adstock
+`Consumer Confidence Index`,
+`Exchange Rate`,
+exchange_rate_lag1,
+`Online Visibility`,
+#average_weather_days = average,
+better_than_average_weather_days = `better than average`,
+worse_than_Average_weather_days = `worse than average`
 
 ) %>%
-  filter(country %in% Market) %>% select(-country)
+  filter(product_id %in% product) %>% select(-product_id)
   
 #estimate / remove NAs if nececary - exclude any categorical variables. Should check data first in case there are lots of NAs
-names(data); head(data)
+names(data); head(data); nrow(data)
 data[4:ncol(data)] <- na.approx(data[4:ncol(data)], rule = 2)
 
 #run model
@@ -114,12 +87,12 @@ summary(fit)
 sqrt( c(crossprod(fit$residuals)) / length(fit$residuals) )
 
 #Build Actual vs Model (AVM)
-AVM <- data.frame(cbind(Actual = data[[2]], Fitted = fitted(fit)))
+AVM <- data.frame(cbind(Actual = data[["Dep_Var"]], Fitted = fitted(fit)))
 AVM <- cbind(Date = dates, AVM)
 AVM <- mutate(AVM, Residual = Actual - Fitted)
 
 #AVM plot
-ggplot(AVM, aes(x = Date)) + 
+ggplot(AVM, aes(x = date)) + 
   geom_line(aes(y = Actual, colour = "Actual")) + 
   geom_line(aes(y = Fitted, colour = "Fitted")) +
   geom_line(aes(y = Residual, colour = "Resid")) 
@@ -130,10 +103,10 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  output$distPlot <- renderPlotly({ggplot(AVM, aes(Date)) + 
+  output$distPlot <- renderPlotly({ggplot(AVM, aes(date)) + 
       geom_line(aes(y = Actual, colour = "Actual")) + 
       geom_line(aes(y = Fitted, colour = "Fitted")) +
-      geom_line(aes(y = Residual, colour = "Resid")) + ggtitle("Netherlands")
+      geom_line(aes(y = Residual, colour = "Resid")) 
   })
 }
 
