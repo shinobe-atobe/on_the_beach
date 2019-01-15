@@ -1,11 +1,13 @@
 ---
 title: "Size Prediction"
+author:
+- name: Phil Nash
+date: "`r Sys.Date()`"
+output:
+  radix::radix_article:
+    self_contained: no
 description: |
   A new article created using the Radix format.
-author:
-  - name: Phil Nash
-date: "`r Sys.Date()`"
-output: radix::radix_article
 ---
 
 ```{r setup, include=FALSE}
