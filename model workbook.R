@@ -21,6 +21,7 @@ list_of_products <- unique(train_product$product_id)
 ###########################################################
 
 product <- 0  # choose product
+movav_k <- 10
 adstock_rate <- 0.8
 
 dates <- data_raw %>% 
@@ -46,12 +47,12 @@ month = month(Date),
 #Seasonality = predict(loess(Visibility ~ day_number, span=0.15), day_number)
 #Seasonality = rollmean(x = Temperature.Fahrenheit, 30, align = "right", fill = NA)
 exchange_rate_lag1 = lag(`Exchange Rate`),
-exchange_rate_moving_av = rollmean(`Exchange Rate`, 10, fill =  "extend", align = "right")
+exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  "extend", align = "right")
 
 ) %>% 
 ungroup() %>%
   filter(Date >= date_from, Date <= date_to) %>%
-  select( # try transmute here
+  transmute( 
 # --------INPUT VARIABLE NAMES HERE -------   
 Date,
 product_id,
@@ -62,11 +63,11 @@ DayFriday,
 DaySaturday,
 DaySunday,
 month,
-TV_adstock,
-xmas,
+TV_adstock = log(TV_adstock +1),
+#xmas,
 `Consumer Confidence Index`,
-`Exchange Rate`,
-exchange_rate_lag1,
+#`Exchange Rate`,
+exchange_rate_moving_av,
 `Online Visibility`,
 #average_weather_days = average,
 better_than_average_weather_days = `better than average`,
@@ -117,7 +118,7 @@ shinyApp(ui = ui, server = server)
 
 
 #---------Contribution---------
-variable_groupings <- read.csv("Variable Groupings.csv")
+variable_groupings <- read_csv("Variable Groupings.csv")
 
 variables <- data %>%
   mutate(Intercept = 1) %>%
@@ -125,24 +126,36 @@ variables <- data %>%
 
 Contribution <- bind_cols(select(data, Date, Dep_Var), data.frame(mapply(`*`,variables,fit$coefficients)))
 
-#Contribution <- filter(Contribution, Date >= dmy('01/01/2018'))
-
-#generate weekly sand diagram
-Contribution %>% 
-  mutate(Week_commencing = ymd('0000-01-01') + years(year(Date)) + weeks(week(Date) - 1) ) %>% 
-  group_by(Week_commencing) %>% 
-  select(-Date, -Dep_Var) %>%
-  summarise_all(funs(sum)) %>%
+#generate sand diagram
+cont_chart_data <- Contribution %>% 
+  #mutate(Week_commencing = ymd('0000-01-01') + years(year(Date)) + weeks(week(Date) - 1) ) %>% 
+  #group_by(Week_commencing) %>% 
+  select( -Dep_Var) %>%
+  #summarise_all(funs(sum)) %>% 
   gather(Var_Name, value, 2:ncol(.)) %>%
   left_join(variable_groupings, by = 'Var_Name') %>% 
-  group_by(Week_commencing, Grouping) %>%
+  group_by(Date, 
+           Grouping) %>%
   summarise(value = sum(value)) %>%
   spread(Grouping, value) %>%
-  #mutate(Base_Sales = Base_Sales - 130 + 210, # max(.$Seasonality)
-  #       Seasonality = Seasonality + 130,
-  #       Product = Product - 210 ) %>% # max(.$Seasonality
+  #filter(Week_commencing != '2016-12-30') %>%  
+  data.frame() %>% 
+  mutate_at(3:8, rollmean, k = 7, allign = 'centre', fill = "extend")
+
+min_seas <-  min(cont_chart_data$Seasonality)
+min_conf <-  min(cont_chart_data$Consumer_Confidence)
+min_fx <-  min(cont_chart_data$Exchange_Rate)
+min_onl <-  min(cont_chart_data$Online_Visibility)
+
+cont_chart_data %>% 
+  mutate(Base_Sales = Base_Sales + min(Online_Visibility) + min(Exchange_Rate) + min(Consumer_Confidence), # max(.$Seasonality)
+          Exchange_Rate = Exchange_Rate - min(Exchange_Rate),
+          Online_Visibility = Online_Visibility - min(Online_Visibility),
+          #Seasonality = Seasonality - min(Seasonality),
+          Consumer_Confidence = Consumer_Confidence - min(Consumer_Confidence)
+  ) %>% 
   #select(-Paid_Ads) %>%
   gather(Grouping, value, 2:ncol(.)) %>% 
-  mutate(Grouping = factor(Grouping, levels = c('TV', 'Market/Competition', 'Other_Marketing', 'Paid_Ads',  'Seasonality', 'Product', 'Social', 'SEM', 'Price_And_Subsidy', 'Base_Sales'))) %>%
-  ggplot(aes(x = Week_commencing, y = value)) + geom_area(aes(fill = Grouping), position = 'Stack') +ggtitle(paste(Market, "- Card Reader Owners"))
+  mutate(Grouping = factor(Grouping, levels = c('TV', 'Online_Visibility', 'Exchange_Rate', 'Weather',  'Seasonality', 'Consumer_Confidence', 'Base_Sales'))) %>%
+  ggplot(aes(x = Date, y = value)) + geom_area(aes(fill = Grouping), position = 'Stack') +ggtitle(paste(product, "- Sessions"))
 

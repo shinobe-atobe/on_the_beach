@@ -43,3 +43,6 @@ train_product %>%
 # need to find a driver of the upwards trend
 
 # perhaps if bookings are modelled we will have to group by week
+
+# charts showing variable transformations
+
