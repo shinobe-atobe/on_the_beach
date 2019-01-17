@@ -46,3 +46,4 @@ train_product %>%
 
 # charts showing variable transformations
 
+file.create(".nojekyll")

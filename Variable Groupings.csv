@@ -22,3 +22,4 @@ DayTuesday,Seasonality
 DayWednesday,Seasonality
 DayThursday,Seasonality
 Intercept,Base_Sales
+online_visibility_exp,Online_Visibility

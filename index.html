@@ -25,8 +25,8 @@
   
   
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2019-01-15"/>
-  <meta property="article:created" itemprop="dateCreated" content="2019-01-15"/>
+  <meta property="article:published" itemprop="datePublished" content="2019-01-17"/>
+  <meta property="article:created" itemprop="dateCreated" content="2019-01-17"/>
   <meta name="article:author" content="Phil Nash"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
@@ -44,12 +44,12 @@
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","author","date","output","description"]}},"value":[{"type":"character","attributes":{},"value":["Size Prediction"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name"]}},"value":[{"type":"character","attributes":{},"value":["Phil Nash"]}]}]},{"type":"character","attributes":{},"value":["2019-01-15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["radix::radix_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["A new article created using the Radix format."]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","author","date","output","description"]}},"value":[{"type":"character","attributes":{},"value":["Size Prediction"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name"]}},"value":[{"type":"character","attributes":{},"value":["Phil Nash"]}]}]},{"type":"character","attributes":{},"value":["2019-01-17"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["radix::radix_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["A new article created using the Radix format."]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["~$On The Beach.pptx","Analysis.html","data/otb_interview_task__SAMPLE_SUBMISSION__product_groupings.csv","data/otb_interview_task__SAMPLE_SUBMISSION__product_time_series.csv","data/otb_interview_task__test__product_groupings.csv","data/otb_interview_task__test__product_time_series.csv","data/otb_interview_task__train__meta_time_series.csv","data/otb_interview_task__train__product_time_series.csv","images/First pass at model.png","index_files/figure-html5/time_series-1.png","index_files/figure-html5/time_series_split-1.png","index_files/figure-html5/time_series_with_conv_rate-1.png","On The Beach.pptx","otb_interview_task.pdf","Variable Groupings.csv"]}
+  {"type":"character","attributes":{},"value":["Analysis.html","data/otb_interview_task__SAMPLE_SUBMISSION__product_groupings.csv","data/otb_interview_task__SAMPLE_SUBMISSION__product_time_series.csv","data/otb_interview_task__test__product_groupings.csv","data/otb_interview_task__test__product_time_series.csv","data/otb_interview_task__train__meta_time_series.csv","data/otb_interview_task__train__product_time_series.csv","images/First pass at model.png","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/figure-html5/AVM-1.png","index_files/figure-html5/AVM_bookings-1.png","index_files/figure-html5/AVM_sessions-1.png","index_files/figure-html5/contribution_chart_sessions-1.png","index_files/figure-html5/n_bookings_sessions-1.png","index_files/figure-html5/time_series-1.png","index_files/figure-html5/time_series_split-1.png","index_files/figure-html5/time_series_with_conv_rate-1.png","index_files/figure-html5/total_model-1.png","index_files/figure-html5/var_vs_bookings-1.png","index_files/figure-html5/year_stacked_sessions-1.png","index_files/jquery-1.11.3/jquery.min.js","index_files/webcomponents-2.0.0/webcomponents.js","On The Beach.pptx","otb_interview_task.pdf","Variable Groupings.csv"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
   <!--/radix_placeholder_navigation_in_header-->
@@ -942,7 +942,7 @@
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Size Prediction","description":"A new article created using the Radix format.","authors":[{"author":"Phil Nash","authorURL":"#","affiliation":"&nbsp;","affiliationURL":"#"}],"publishedDate":"2019-01-15T00:00:00.000+00:00","citationText":"Nash, 2019"}
+{"title":"Size Prediction","description":"A new article created using the Radix format.","authors":[{"author":"Phil Nash","authorURL":"#","affiliation":"&nbsp;","affiliationURL":"#"}],"publishedDate":"2019-01-17T00:00:00.000+00:00","citationText":"Nash, 2019"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -959,14 +959,14 @@
 <div class="d-byline">
   Phil Nash  
   
-<br/>2019-01-15
+<br/>2019-01-17
 </div>
 
 <div class="d-article">
 <p>Hello, welcome to my project. I’ve used Radix to produce this, its new to me but I think its really cool. Let’s get going</p>
-<h2 id="part-1-data-exploration">Part 1: Data Exploration</h2>
+<h2 id="data-exploration">Data Exploration</h2>
 <p>I’m goign to start with some simple exploration to help understand the data a bit better</p>
-<p>let’s read in the data first:</p>
+<p>Let’s read in the data first:</p>
 <div class="layout-chunk" data-layout="l-body">
 <pre class="r"><code>
 train_meta &lt;- read_csv(&quot;./data/otb_interview_task__train__meta_time_series.csv&quot;) 
@@ -1002,7 +1002,7 @@ train_product %&gt;%
 <p><img src="index_files/figure-html5/time_series_with_conv_rate-1.png" width="624" /></p>
 </div>
 <p>I am surprised to see so much noise in the data. When we split out each product, we can see that noise occouring across all of them</p>
-<p>Whats also interesting here is seeing a few products increase their sessions in H2 2016 - 2018. This may be interesting in answerign the second questuion</p>
+<p>Whats also interesting here is seeing a few products increase their sessions in H2 2016 - 2018. This may be important in answering the second question</p>
 <div class="layout-chunk" data-layout="l-body">
 <pre class="r"><code>
 train_product %&gt;%
@@ -1010,6 +1010,271 @@ train_product %&gt;%
   ggplot(aes(x = date, y = value, group = factor(product_id))) + geom_line(size = 0.05, alpha = 0.1) + facet_grid(rows = vars(metric), scales = &quot;free_y&quot;)</code></pre>
 <p><img src="index_files/figure-html5/time_series_split-1.png" width="624" /></p>
 </div>
+<p>It looks like every product has a sizable volume of products and bookings, so shoudl be fine to model individually</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+train_product %&gt;%
+  group_by(product_id) %&gt;%
+  summarise(total_bookings = sum(bookings),
+            total_session = sum(sessions)) %&gt;% 
+  gather(metric, n, 2:3) %&gt;% 
+  ggplot(aes(x = factor(product_id), y = n, fill = metric)) + geom_bar(stat = &#39;identity&#39;) + 
+  facet_grid(rows = vars(metric), scales = &quot;free_y&quot;) + 
+  xlab(&quot;product_id&quot;)</code></pre>
+<p><img src="index_files/figure-html5/n_bookings_sessions-1.png" width="624" /></p>
+</div>
+<h2 id="question-1">Question 1</h2>
+<h3 id="what-are-the-drivers-of-sessions-and-orders">What are the drivers of sessions and orders?</h3>
+<p>A bit of data cleaning to start, and the creation of a ‘total’ layer in the data:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+# tidy
+train_meta$Date &lt;- dmy(train_meta$Date)
+train_product$product_id = as.character(train_product$product_id)
+
+# create a total product
+total_product &lt;- train_product %&gt;% 
+  group_by(date) %&gt;% 
+  summarise(sessions = sum(sessions),
+          bookings = sum(bookings)) %&gt;% 
+  transmute(product_id = &quot;Total&quot;, date, sessions, bookings)
+
+# join datasets together 
+data_raw &lt;- train_product %&gt;% 
+  bind_rows(total_product) %&gt;%
+  left_join(train_meta, by = c(&#39;date&#39; = &#39;Date&#39;) ) %&gt;%
+  mutate(weather = 1) %&gt;%
+  spread(`Weather Index`, weather, fill = 0)
+
+# restrict model parameters if neccecary
+date_from &lt;- min(train_product$date)  
+date_to &lt;- max(train_product$date) 
+list_of_products &lt;- unique(train_product$product_id)</code></pre>
+</div>
+<h4 id="variable-transformations">Variable Transformations</h4>
+<p>I will be using a linear model with time series transformations of the data</p>
+<p>The three thransoformations I have used are: Adstock, rollling means and and lags</p>
+<p>Adtocks are used to simulate the effect of media sticking in peoples mind, visualised below. The black bars are the weeks TV ran, the coloured lines are the shape of response we expect to see for differetn decay rates.</p>
+<p>I tested a number of different decay rates for TV and found the best was 0.8</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+adstock &lt;- function(x, rate) {
+  
+  adstocked_variable &lt;- x 
+  
+  for (i in 1:(length(x)-1) ) {
+    adstocked_variable[i+1] &lt;-  x[i + 1] + (rate * adstocked_variable[i])
+  }
+  adstocked_variable
+}
+
+# chart showign 4 diferent adstock rates 
+tibble(Week_number = 0:42,
+       TV_spend = c(rep(0, 20), 100, 100, 100, rep(0, 20))) %&gt;% 
+  ggplot(aes(x = Week_number)) + 
+  geom_col(aes(y = TV_spend * 2)) + 
+  geom_line(aes(y = adstock(TV_spend, 0.1), col = &#39;blue&#39;)) +
+  geom_line(aes(y = adstock(TV_spend, 0.5), col = &#39;green&#39;)) +
+  geom_line(aes(y = adstock(TV_spend, 0.8), col = &#39;red&#39;)) +
+  geom_line(aes(y = adstock(TV_spend, 0.9), col = &#39;purple&#39;)) + 
+  ggtitle(&quot;The effects of differing decay rates on media impact&quot;) + 
+  ylab(&quot;TV driven sales&quot;)</code></pre>
+<p><img src="index_files/figure-html5/total_model-1.png" width="624" /></p>
+</div>
+<h4 id="the-model">The Model</h4>
+<p>This is the main body of the model.</p>
+<p>I had three choices of model - ARIMA time series model - chosen not to go with because variables are not stationary</p>
+<p>Panel regression using fixed / random effects - to model each product as one</p>
+<p>150 seperate linear models with variable transformations. I choswe to go with this as it gave a readable output and fitted the data well</p>
+<p>Some new variables were created and tested.</p>
+<ul>
+<li><p>Exchange rate was tested with a lag due to the effect of any change probably not ben felt immidately. It was foudn a better fit was foudn with a rolled mean with right allighnment</p></li>
+<li><p>Multiple TV astocks were tested, the best fit was foudn to be 0.8</p></li>
+<li><p>seasonality was tested beyond jsut weather. it wasa foudn that in april may june each year sales tended to be up</p></li>
+<li><p>weekends were foudn to drive more sales than weekdays, hence extra variables for friday saturday and sunday</p></li>
+<li><p>TV was also logged to account for diminishing returns to spend</p></li>
+<li><p>The data was scaled so as to make volumes comparible</p></li>
+</ul>
+<h5 id="sessions">Sessions</h5>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+###########################################################
+#---------------Code for building MMM----------------------
+###########################################################
+product &lt;- &quot;Total&quot;  # choose product
+movav_k &lt;- 10
+adstock_rate &lt;- 0.8
+
+dates &lt;- data_raw %&gt;% 
+  filter(product_id == product) %&gt;%
+  select(date) %&gt;%
+  mutate(date = ymd(date)) %&gt;%
+  filter(date &gt;= date_from, date &lt;= date_to) %&gt;%
+  as.vector()
+
+data &lt;- data_raw %&gt;% 
+  mutate(Date = ymd(date)) %&gt;%
+  group_by(product_id) %&gt;% mutate(
+
+#-----INPUT NEW VARIABLES HERE---------
+TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate),
+DayFriday = ifelse(weekdays(Date) == &quot;Wednesday&quot;, 1, 0),
+DaySaturday = ifelse(weekdays(Date) == &quot;Saturday&quot;, 1, 0),
+DaySunday = ifelse(weekdays(Date) == &quot;Sunday&quot;, 1, 0),
+xmas = ifelse(Date %in% dmy(c(&#39;25/12/2017&#39;, &#39;25/12/2016&#39;, &#39;25/12/2015&#39;, &#39;25/12/2014&#39;)), 1 ,0),
+day_number = day(Date),
+#month = month(Date, label = T, abbr = F),
+exchange_rate_lag1 = lag(`Exchange Rate`),
+exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  &quot;extend&quot;, align = &quot;right&quot;)
+
+) %&gt;% 
+ungroup() %&gt;%
+  filter(Date &gt;= date_from, Date &lt;= date_to) %&gt;%
+  transmute( 
+# --------INPUT VARIABLE NAMES HERE -------   
+Date,
+product_id,
+Dep_Var = sessions,
+#bookings,
+#Day,
+DayFriday,
+DaySaturday,
+DaySunday,
+#month,
+TV_adstock = log(TV_adstock +1),
+#xmas,
+`Consumer Confidence Index`,
+#`Exchange Rate`,
+exchange_rate_moving_av,
+`Online Visibility`,
+#average_weather_days = average,
+better_than_average_weather_days = `better than average`,
+worse_than_Average_weather_days = `worse than average`
+
+) %&gt;%
+  filter(product_id %in% product) %&gt;% 
+  select(-product_id) 
+
+# optional scaling
+data &lt;- bind_cols(data %&gt;% select(Date, Dep_Var, TV_adstock), data %&gt;% select(-Date, -Dep_Var, -TV_adstock) %&gt;% scale() %&gt;% data.frame())
+
+#estimate / remove NAs if nececary
+#names(data); head(data); nrow(data)
+data[4:ncol(data)] &lt;- na.approx(data[4:ncol(data)], rule = 2)
+
+#run model
+fit &lt;- lm(select(data, Dep_Var, everything(), -Date))
+summary(fit)</code></pre>
+<pre><code>
+Call:
+lm(formula = select(data, Dep_Var, everything(), -Date))
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-39670  -8273    198   8356  51289 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                      210161.4      426.5 492.721  &lt; 2e-16
+TV_adstock                        26514.6      397.9  66.641  &lt; 2e-16
+DayFriday                         -1370.5      306.0  -4.478 8.00e-06
+DaySaturday                        2596.7      306.0   8.485  &lt; 2e-16
+DaySunday                          2694.5      306.0   8.804  &lt; 2e-16
+Consumer.Confidence.Index         20789.1      807.9  25.732  &lt; 2e-16
+exchange_rate_moving_av           10283.1      530.7  19.378  &lt; 2e-16
+Online.Visibility                 24789.7      792.6  31.275  &lt; 2e-16
+better_than_average_weather_days  -9473.3      304.0 -31.163  &lt; 2e-16
+worse_than_Average_weather_days    1599.8      302.3   5.292 1.36e-07
+                                    
+(Intercept)                      ***
+TV_adstock                       ***
+DayFriday                        ***
+DaySaturday                      ***
+DaySunday                        ***
+Consumer.Confidence.Index        ***
+exchange_rate_moving_av          ***
+Online.Visibility                ***
+better_than_average_weather_days ***
+worse_than_Average_weather_days  ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 12630 on 1816 degrees of freedom
+Multiple R-squared:  0.9244,    Adjusted R-squared:  0.924 
+F-statistic:  2467 on 9 and 1816 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p>Here I have plotted the actual sessions by day as well as the model prediction and the error each day:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="index_files/figure-html5/AVM_sessions-1.png" width="624" /></p>
+</div>
+<p>The outputs of the model can be converted to a contribution chart:</p>
+<p>Whats interestign to see here is that bad weather days impact sales negatviely far more than good weather days impact postivily</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="index_files/figure-html5/contribution_chart_sessions-1.png" width="624" /></p>
+</div>
+<p>We can also group this by year and look a the proportions of each driver:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="index_files/figure-html5/year_stacked_sessions-1.png" width="624" /></p>
+</div>
+<h3 id="bookings">Bookings</h3>
+<p>The bookigns model did not look as good as the sessions model, I believe this was due to the factors discussed a tthe beginning of the paper</p>
+<p>There are low volmes in bookings. This is an attempt at the total model erhaps the better</p>
+<p>For bookings there is an upwards trend. I would asume that this is driven by</p>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>I added one more transformation here, an exponential of the online prescence variable (A power 4 fits best) we are simulating the effect that the more online presence increases, the more word of mouth will spread and the more the brand grows:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="index_files/figure-html5/var_vs_bookings-1.png" width="624" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>
+Call:
+lm(formula = select(data, Dep_Var, everything(), -Date))
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1159.76  -180.35     0.91   166.05  1526.49 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                      2269.263     10.288 220.578  &lt; 2e-16
+TV_adstock                        318.513      9.573  33.270  &lt; 2e-16
+DayFriday                          -9.477      7.401  -1.281 0.200490
+DaySaturday                        29.558      7.400   3.994 6.75e-05
+DaySunday                          33.205      7.401   4.487 7.69e-06
+Consumer.Confidence.Index          90.553     15.661   5.782 8.68e-09
+exchange_rate_moving_av            45.922     13.239   3.469 0.000535
+online_visibility_exp            1452.289     15.339  94.680  &lt; 2e-16
+better_than_average_weather_days -124.630      7.370 -16.912  &lt; 2e-16
+worse_than_Average_weather_days    37.151      7.309   5.083 4.09e-07
+                                    
+(Intercept)                      ***
+TV_adstock                       ***
+DayFriday                           
+DaySaturday                      ***
+DaySunday                        ***
+Consumer.Confidence.Index        ***
+exchange_rate_moving_av          ***
+online_visibility_exp            ***
+better_than_average_weather_days ***
+worse_than_Average_weather_days  ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 305.4 on 1816 degrees of freedom
+Multiple R-squared:  0.9623,    Adjusted R-squared:  0.9621 
+F-statistic:  5155 on 9 and 1816 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p>The residuals seem to show hetroscedasticity and autocorrealtion. This model needs improving</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="index_files/figure-html5/AVM_bookings-1.png" width="624" /></p>
+</div>
+<h3 id="further-model-developments">Further model developments:</h3>
+<ul>
+<li>split TV into years - maybe it performs better in one year relatvie to another</li>
+<li>hyperparameter tune the moving averages and the tv adstoock for all models</li>
+</ul>
 <p>Radix is a publication format for scientific and technical writing, native to the web.</p>
 <p>Learn more about using Radix at <a href="https://rstudio.github.io/radix" class="uri">https://rstudio.github.io/radix</a>.</p>
 <!--radix_placeholder_article_footer-->
