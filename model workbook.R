@@ -313,12 +313,12 @@ names(list_of_products) <- list_of_products
 output <- map(list_of_products, safely(build_mmm))
 
 # chart 
-output %>% 
+  output %>% 
   transpose() %>% 
   pluck('result') %>% 
   transpose() %>% 
   pluck('contribition') %>% 
-  bind_rows(.id = 'product_id') %>% 
+  bind_rows() %>% 
   mutate(variable = c("Base_Sales",
                       "Consumer_Confidence",
                       "Exchange_Rate",
@@ -326,7 +326,8 @@ output %>%
                       "Seasonality",        
                       "TV",
                       "Weather")) %>% 
-  select(variable, everything()) %>%
-  gather(product, value, 2:ncol(.)) %>%
-  ggplot(aes(x = product, y = ))
-  
+  select(variable,  everything()) %>% 
+  mutate(variable = factor(variable,  levels = c('TV', 'Online_Visibility', 'Exchange_Rate', 'Weather',  'Seasonality', 'Consumer_Confidence', 'Base_Sales'))) %>% 
+  gather(product, value, 2:ncol(.)) %>% 
+  ggplot(aes(x = product, y = value, fill = variable)) + geom_bar(position = 'fill', stat = 'identity') + 
+   coord_cartesian(ylim = c(-0.01 , 1)) + theme(text = element_text(size=10))

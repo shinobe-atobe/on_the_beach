@@ -120,7 +120,6 @@ data_raw <- train_product %>%
 # restrict model parameters if neccecary
 date_from <- min(train_product$date)  
 date_to <- max(train_product$date) 
-list_of_products <- unique(train_product$product_id)
 
 ```
 
@@ -323,9 +322,9 @@ cont_chart_data %>%
 ```
 
 
-We can also group this by year and look a the proportions of each driver:
+We can also group this by year and look a the annual amount of sessions that each variable was driving:
 
-```{r year_stacked_sessions}
+```{r year_stacked_sessions, echo = T}
 
 # annual stacked contribution chart 
 cont_chart_data %>% 
@@ -333,10 +332,118 @@ cont_chart_data %>%
   summarise_all(funs(sum)) %>%
   select(-Date) %>% 
   gather(Grouping, value, 2:ncol(.)) %>% 
-  mutate(Grouping = factor(Grouping, levels = c('TV', 'Online_Visibility', 'Exchange_Rate', 'Weather',         'Seasonality', 'Consumer_Confidence', 'Base_Sales'))) %>%
+  mutate(Grouping = factor(Grouping, levels = c('TV', 'Online_Visibility', 'Exchange_Rate', 'Weather',  'Seasonality', 'Consumer_Confidence', 'Base_Sales'))) %>%
   ggplot(aes(x = year, y = value)) + geom_bar(aes(fill = Grouping), position = 'stack', stat = 'identity') +ggtitle(paste(product, "- Sessions"))
 
- 
+```
+
+# finally we can adapt the model to loop over each of the 150 products and return 
+
+```{r model_loop_sessions, echo = F, eval = T}
+
+build_mmm <- function(product = "Total") {
+
+dates <- data_raw %>% 
+  filter(product_id == product) %>%
+  select(date) %>%
+  mutate(date = ymd(date)) %>%
+  filter(date >= date_from, date <= date_to) %>%
+  as.vector()
+
+data <- data_raw %>% 
+  mutate(Date = ymd(date)) %>%
+  group_by(product_id) %>% mutate(
+    
+    #-----INPUT NEW VARIABLES HERE---------
+    TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate), #Adstockrates <- tibble(Country = list_of_markets, Adstock = c(0.4, 0.8, 0.8, 0.92, 0.8)) 
+    #Day = ifelse(weekdays(Date) == "Monday", 0, weekdays(Date)),
+    DayFriday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
+    DaySaturday = ifelse(weekdays(Date) == "Saturday", 1, 0),
+    DaySunday = ifelse(weekdays(Date) == "Sunday", 1, 0),
+    xmas = ifelse(Date %in% dmy(c('25/12/2017', '25/12/2016', '25/12/2015', '25/12/2014')), 1 ,0), #dummy variable
+    day_number = day(Date),
+    #month = month(Date, label = T, abbr = F),
+    #Seasonality = predict(loess(Visibility ~ day_number, span=0.15), day_number)
+    #Seasonality = rollmean(x = Temperature.Fahrenheit, 30, align = "right", fill = NA)
+    exchange_rate_lag1 = lag(`Exchange Rate`),
+    exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  "extend", align = "right")
+    
+  ) %>% 
+  ungroup() %>%
+  filter(Date >= date_from, Date <= date_to) %>%
+  transmute( 
+    # --------INPUT VARIABLE NAMES HERE -------   
+    Date,
+    product_id,
+    Dep_Var = sessions,
+    #bookings,
+    #Day,
+    DayFriday,
+    DaySaturday,
+    DaySunday,
+    #month,
+    TV_adstock = log(TV_adstock +1),
+    #xmas,
+    `Consumer Confidence Index`,
+    #`Exchange Rate`,
+    exchange_rate_moving_av,
+    `Online Visibility`,
+    #average_weather_days = average,
+    better_than_average_weather_days = `better than average`,
+    worse_than_Average_weather_days = `worse than average`
+    
+  ) %>%
+  filter(product_id %in% product) %>% select(-product_id) 
+
+
+# optional scaling
+data <- bind_cols(data %>% select(Date, Dep_Var, TV_adstock), data %>% select(-Date, -Dep_Var, -TV_adstock) %>% scale() %>% data.frame())
+
+#estimate / remove NAs if nececary - exclude any categorical variables. Should check data first in case there are lots of NAs
+names(data); head(data); nrow(data)
+#data[4:ncol(data)] <- na.approx(data[4:ncol(data)], rule = 2)
+
+#run model
+fit <- lm(select(data, Dep_Var, everything(), -Date))
+#tidy(summary(fit))
+
+variables <- data %>%
+  mutate(Intercept = 1) %>%
+  select( Intercept, everything(), -Date, -Dep_Var)
+
+Contribution <- bind_cols(select(data, Date, Dep_Var), data.frame(mapply(`*`,variables,fit$coefficients)))
+
+#generate sand diagram
+cont_chart_data <- Contribution %>% 
+  #mutate(Week_commencing = ymd('0000-01-01') + years(year(Date)) + weeks(week(Date) - 1) ) %>% 
+  #group_by(Week_commencing) %>% 
+  select( -Dep_Var) %>%
+  #summarise_all(funs(sum)) %>% 
+  gather(Var_Name, value, 2:ncol(.)) %>%
+  left_join(variable_groupings, by = 'Var_Name') %>% 
+  group_by(Date, 
+           Grouping) %>%
+  summarise(value = sum(value)) %>%
+  spread(Grouping, value) %>%
+  #filter(Week_commencing != '2016-12-30') %>%  
+  data.frame() %>% 
+  mutate_at(3:8, rollmean, k = 7, allign = 'centre', fill = "extend")
+
+min_seas <-  min(cont_chart_data$Seasonality)
+min_conf <-  min(cont_chart_data$Consumer_Confidence)
+min_fx <-  min(cont_chart_data$Exchange_Rate)
+min_onl <-  min(cont_chart_data$Online_Visibility)
+
+cont_chart_data %>% 
+  mutate(Base_Sales = Base_Sales + min(Online_Visibility) + min(Exchange_Rate) + min(Consumer_Confidence), # max(.$Seasonality)
+         Exchange_Rate = Exchange_Rate - min(Exchange_Rate),
+         Online_Visibility = Online_Visibility - min(Online_Visibility),
+         #Seasonality = Seasonality - min(Seasonality),
+         Consumer_Confidence = Consumer_Confidence - min(Consumer_Confidence)
+  ) %>% select(-Date) %>% colSums()
+
+}
+
 ```
 
 
@@ -446,13 +553,20 @@ ggplot(AVM, aes(x = date)) +
 ```
 
 
-
-
 ### Further model developments: 
 
 - split TV into years - maybe it performs better in one year relatvie to another
 - hyperparameter tune the moving averages and the tv adstoock for all models 
 
+## Question 2: Identify fators and predict groups
+
+Let's go over what details we have for each product: 
+
+- The number of sessions and bookings
+- The conversion rate
+- Whether the sessions increases in H2 2016
+- The responsiveness to media / online presence / exchange rate / consumer confidence
+- 
 
 
 Radix is a publication format for scientific and technical writing, native to the web. 
