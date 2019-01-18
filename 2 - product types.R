@@ -52,11 +52,11 @@ plot(sapply(1:15, kmeans_fun))
 # found there were 3 clusters
 obj <- kmeans(prod_details_scaled, 3)
 
-prods_with_cluster <- bind_cols(prod_details_scaled, cluster = obj$cluster)
+prods_with_cluster <- bind_cols(prod_details, cluster = obj$cluster)
 
 # summarise each of the cluster
 av <- prods_with_cluster %>% 
   group_by(cluster) %>% 
   summarise_all(mean) %>%
-  gather(var, val, -cluster)
+  gather(var, val, -cluster:date)
 
