@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"/>
+  <meta name="generator" content="radix" />
+
+  <style type="text/css">
+  /* Hide doc at startup (prevent jankiness while JS renders/transforms) */
+  body {
+    visibility: hidden;
+  }
+  </style>
+
+ <!--radix_placeholder_import_source-->
+ <!--/radix_placeholder_import_source-->
+
+  <!--radix_placeholder_meta_tags-->
+  <title>On the Beach Interview Task</title>
+  
+  <meta property="description" itemprop="description" content="A new article created using the Radix format."/>
+  
+  
+  <!--  https://schema.org/Article -->
+  <meta property="article:published" itemprop="datePublished" content="2019-01-20"/>
+  <meta property="article:created" itemprop="dateCreated" content="2019-01-20"/>
+  <meta name="article:author" content="Phil Nash"/>
+  
+  <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
+  <meta property="og:title" content="On the Beach Interview Task"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:description" content="A new article created using the Radix format."/>
+  <meta property="og:locale" content="en_US"/>
+  
+  <!--  https://dev.twitter.com/cards/types/summary -->
+  <meta property="twitter:card" content="summary"/>
+  <meta property="twitter:title" content="On the Beach Interview Task"/>
+  <meta property="twitter:description" content="A new article created using the Radix format."/>
+  
+  <!--/radix_placeholder_meta_tags-->
+  <!--radix_placeholder_rmarkdown_metadata-->
+  
+  <script type="text/json" id="radix-rmarkdown-metadata">
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","author","date","output","description"]}},"value":[{"type":"character","attributes":{},"value":["On the Beach Interview Task"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name"]}},"value":[{"type":"character","attributes":{},"value":["Phil Nash"]}]}]},{"type":"character","attributes":{},"value":["2019-01-20"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["radix::radix_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["A new article created using the Radix format."]}]}
+  </script>
+  <!--/radix_placeholder_rmarkdown_metadata-->
+  
+  <script type="text/json" id="radix-resource-manifest">
+  {"type":"character","attributes":{},"value":["data/otb_interview_task__SAMPLE_SUBMISSION__product_groupings.csv","data/otb_interview_task__SAMPLE_SUBMISSION__product_time_series.csv","data/otb_interview_task__test__product_groupings.csv","data/otb_interview_task__test__product_time_series.csv","data/otb_interview_task__train__meta_time_series.csv","data/otb_interview_task__train__product_time_series.csv","for submission/product_groupings","for submission/product_time_series","images/First pass at model.png","index.html","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/figure-html5/AVM-1.png","index_files/figure-html5/AVM_bookings-1.png","index_files/figure-html5/AVM_sessions-1.png","index_files/figure-html5/clusters_find_k-1.png","index_files/figure-html5/contribution_by_product_bookings-1.png","index_files/figure-html5/contribution_by_product_sessions-1.png","index_files/figure-html5/contribution_chart_bookings-1.png","index_files/figure-html5/contribution_chart_sessions-1.png","index_files/figure-html5/n_bookings_sessions-1.png","index_files/figure-html5/prediction_check-1.png","index_files/figure-html5/prediction_check_explaination-1.png","index_files/figure-html5/time_series-1.png","index_files/figure-html5/time_series_split-1.png","index_files/figure-html5/time_series_with_conv_rate-1.png","index_files/figure-html5/total_model-1.png","index_files/figure-html5/var_vs_bookings-1.png","index_files/figure-html5/year_stacked_sessions-1.png","index_files/jquery-1.11.3/jquery.min.js","index_files/webcomponents-2.0.0/webcomponents.js","OTB_interview_task_files/bowser-1.9.3/bowser.min.js","OTB_interview_task_files/distill-2.2.21/template.v2.js","OTB_interview_task_files/figure-html5/AVM_bookings-1.png","OTB_interview_task_files/figure-html5/AVM_sessions-1.png","OTB_interview_task_files/figure-html5/clusters_find_k-1.png","OTB_interview_task_files/figure-html5/contribution_by_product_bookings-1.png","OTB_interview_task_files/figure-html5/contribution_by_product_sessions-1.png","OTB_interview_task_files/figure-html5/contribution_chart_bookings-1.png","OTB_interview_task_files/figure-html5/contribution_chart_sessions-1.png","OTB_interview_task_files/figure-html5/n_bookings_sessions-1.png","OTB_interview_task_files/figure-html5/prediction_check-1.png","OTB_interview_task_files/figure-html5/prediction_check_explaination-1.png","OTB_interview_task_files/figure-html5/time_series-1.png","OTB_interview_task_files/figure-html5/time_series_split-1.png","OTB_interview_task_files/figure-html5/time_series_with_conv_rate-1.png","OTB_interview_task_files/figure-html5/total_model-1.png","OTB_interview_task_files/figure-html5/var_vs_bookings-1.png","OTB_interview_task_files/figure-html5/year_stacked_sessions-1.png","OTB_interview_task_files/jquery-1.11.3/jquery.min.js","OTB_interview_task_files/otb_interview_task.pdf","OTB_interview_task_files/webcomponents-2.0.0/webcomponents.js","outputs/output_bookings_mmm","outputs/output_sessions_mmm","outputs/sessions_model_outputs.RData","outputs/sessions_output.RData","product_groupings","R Scripts/1 - data exploration.R","R Scripts/2 - product types.R","R Scripts/3 - forecasting.R","R Scripts/Functions.R","R Scripts/model workbook.R","Variable Groupings.csv"]}
+  </script>
+  <!--radix_placeholder_navigation_in_header-->
+  <!--/radix_placeholder_navigation_in_header-->
+  <!--radix_placeholder_distill-->
+  
+  <style type="text/css">
+  
+  body {
+    background-color: white;
+  }
+  
+  .pandoc-table {
+    width: 100%;
+  }
+  
+  .pandoc-table>caption {
+    margin-bottom: 10px;
+  }
+  
+  .pandoc-table th:not([align]) {
+    text-align: left;
+  }
+  
+  .pagedtable-footer {
+    font-size: 15px;
+  }
+  
+  .html-widget {
+    margin-bottom: 2.0em;
+  }
+  
+  .l-screen-inset {
+    padding-right: 16px;
+  }
+  
+  .l-screen .caption {
+    margin-left: 10px;
+  }
+  
+  .shaded {
+    background: rgb(247, 247, 247);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .shaded .html-widget {
+    margin-bottom: 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .shaded .shaded-content {
+    background: white;
+  }
+  
+  .text-output {
+    margin-top: 0;
+    line-height: 1.5em;
+  }
+  
+  .hidden {
+    display: none !important;
+  }
+  
+  d-article {
+    padding-bottom: 30px;
+  }
+  
+  d-appendix {
+    padding-top: 30px;
+  }
+  
+  d-article>p>img {
+    width: 100%;
+  }
+  
+  d-article iframe {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 2.0em;
+    width: 100%;
+  }
+  
+  figure img.external {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+    padding: 18px;
+    box-sizing: border-box;
+  }
+  
+  /* CSS for table of contents */
+  
+  .d-toc {
+    color: rgba(0,0,0,0.8);
+    font-size: 0.8em;
+    line-height: 1em;
+  }
+  
+  .d-toc-header {
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+    margin-top: 0;
+    margin-bottom: 1.3em;
+  }
+  
+  .d-toc a {
+    border-bottom: none;
+  }
+  
+  .d-toc ul {
+    padding-left: 0;
+  }
+  
+  .d-toc li>ul {
+    padding-top: 0.8em;
+    padding-left: 16px;
+    margin-bottom: 0.6em;
+  }
+  
+  .d-toc ul,
+  .d-toc li {
+    list-style-type: none;
+  }
+  
+  .d-toc li {
+    margin-bottom: 0.9em;
+  }
+  
+  .d-toc-separator {
+    margin-top: 20px;
+    margin-bottom: 2em;
+  }
+  
+  .d-article-with-toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  
+  
+  
+  /* Tweak code blocks (note that this CSS is repeated above in an injection
+     into the d-code shadow dom) */
+  
+  d-code {
+    overflow-x: auto !important;
+  }
+  
+  pre.d-code code.d-code {
+    padding-left: 10px;
+    font-size: 12px;
+    border-left: 2px solid rgba(0,0,0,0.1);
+  }
+  
+  pre.text-output {
+  
+    font-size: 12px;
+    color: black;
+    background: none;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+  
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+  
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+  }
+  
+  @media(min-width: 768px) {
+  
+  d-code {
+    overflow-x: visible !important;
+  }
+  
+  pre.d-code code.d-code  {
+      padding-left: 18px;
+      font-size: 14px;
+  }
+  pre.text-output {
+    font-size: 14px;
+  }
+  }
+  
+  /* Figure */
+  
+  .figure {
+    position: relative;
+    margin-bottom: 2.5em;
+    margin-top: 1.5em;
+  }
+  
+  .figure img {
+    width: 100%;
+  }
+  
+  .figure .caption {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+    line-height: 1.5em;
+  }
+  
+  .figure img.external {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+    padding: 18px;
+    box-sizing: border-box;
+  }
+  
+  .figure .caption a {
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .figure .caption b,
+  .figure .caption strong, {
+    font-weight: 600;
+    color: rgba(0, 0, 0, 1.0);
+  }
+  
+  
+  
+  /* Tweak 1000px media break to show more text */
+  
+  @media(min-width: 1000px) {
+    .base-grid,
+    distill-header,
+    d-title,
+    d-abstract,
+    d-article,
+    d-appendix,
+    distill-appendix,
+    d-byline,
+    d-footnote-list,
+    d-citation-list,
+    distill-footer {
+      grid-template-columns: [screen-start] 1fr [page-start kicker-start] 80px [middle-start] 50px [text-start kicker-end] 65px 65px 65px 65px 65px 65px 65px 65px [text-end gutter-start] 65px [middle-end] 65px [page-end gutter-end] 1fr [screen-end];
+      grid-column-gap: 16px;
+    }
+  
+    .grid {
+      grid-column-gap: 16px;
+    }
+  
+    d-article {
+      font-size: 1.06rem;
+      line-height: 1.7em;
+    }
+    figure .caption, .figure .caption, figure figcaption {
+      font-size: 13px;
+    }
+  }
+  
+  @media(min-width: 1180px) {
+    .base-grid,
+    distill-header,
+    d-title,
+    d-abstract,
+    d-article,
+    d-appendix,
+    distill-appendix,
+    d-byline,
+    d-footnote-list,
+    d-citation-list,
+    distill-footer {
+      grid-template-columns: [screen-start] 1fr [page-start kicker-start] 60px [middle-start] 60px [text-start kicker-end] 60px 60px 60px 60px 60px 60px 60px 60px [text-end gutter-start] 60px [middle-end] 60px [page-end gutter-end] 1fr [screen-end];
+      grid-column-gap: 32px;
+    }
+  
+    .grid {
+      grid-column-gap: 32px;
+    }
+  }
+  
+  
+  /* Get the citation styles for the appendix (not auto-injected on render since
+     we do our own rendering of the citation appendix) */
+  
+  d-appendix .citation-appendix,
+  .d-appendix .citation-appendix {
+    font-size: 11px;
+    line-height: 15px;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    padding-left: 18px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.02);
+    padding: 10px 18px;
+    border-radius: 3px;
+    color: rgba(150, 150, 150, 1);
+    overflow: hidden;
+    margin-top: -12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  
+  /* Social footer */
+  
+  .social_footer {
+    margin-top: 30px;
+    margin-bottom: 0;
+    color: rgba(0,0,0,0.67);
+  }
+  
+  .disqus-comments {
+    margin-right: 30px;
+  }
+  
+  .disqus-comment-count {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+  }
+  
+  #disqus_thread {
+    margin-top: 30px;
+  }
+  
+  .article-sharing a {
+    border-bottom: none;
+    margin-right: 8px;
+  }
+  
+  .article-sharing a:hover {
+    border-bottom: none;
+  }
+  
+  .sidebar-section.subscribe {
+    font-size: 12px;
+    line-height: 1.6em;
+  }
+  
+  .subscribe p {
+    margin-bottom: 0.5em;
+  }
+  
+  
+  .article-footer .subscribe {
+    font-size: 15px;
+    margin-top: 45px;
+  }
+  
+  
+  /* Improve display for browsers without grid (IE/Edge <= 15) */
+  
+  .downlevel {
+    line-height: 1.6em;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+  }
+  
+  .downlevel .d-title {
+    padding-top: 6rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  .downlevel .d-title h1 {
+    font-size: 50px;
+    font-weight: 700;
+    line-height: 1.1em;
+    margin: 0 0 0.5rem;
+  }
+  
+  .downlevel .d-title p {
+    font-weight: 300;
+    font-size: 1.2rem;
+    line-height: 1.55em;
+    margin-top: 0;
+  }
+  
+  .downlevel .d-byline {
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+    font-size: 0.8rem;
+    line-height: 1.8em;
+  }
+  
+  .downlevel .section-separator {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .downlevel .d-article {
+    font-size: 1.06rem;
+    line-height: 1.7em;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+  
+  
+  .downlevel .d-appendix {
+    padding-left: 0;
+    padding-right: 0;
+    max-width: none;
+    font-size: 0.8em;
+    line-height: 1.7em;
+    margin-bottom: 0;
+    color: rgba(0,0,0,0.5);
+    padding-top: 40px;
+    padding-bottom: 48px;
+  }
+  
+  .downlevel .footnotes ol {
+    padding-left: 13px;
+  }
+  
+  .downlevel .base-grid,
+  .downlevel .distill-header,
+  .downlevel .d-title,
+  .downlevel .d-abstract,
+  .downlevel .d-article,
+  .downlevel .d-appendix,
+  .downlevel .distill-appendix,
+  .downlevel .d-byline,
+  .downlevel .d-footnote-list,
+  .downlevel .d-citation-list,
+  .downlevel .distill-footer,
+  .downlevel .appendix-bottom,
+  .downlevel .posts-container {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+  
+  @media(min-width: 768px) {
+    .downlevel .base-grid,
+    .downlevel .distill-header,
+    .downlevel .d-title,
+    .downlevel .d-abstract,
+    .downlevel .d-article,
+    .downlevel .d-appendix,
+    .downlevel .distill-appendix,
+    .downlevel .d-byline,
+    .downlevel .d-footnote-list,
+    .downlevel .d-citation-list,
+    .downlevel .distill-footer,
+    .downlevel .appendix-bottom,
+    .downlevel .posts-container {
+    padding-left: 150px;
+    padding-right: 150px;
+    max-width: 900px;
+  }
+  }
+  
+  .downlevel pre code {
+    display: block;
+    border-left: 2px solid rgba(0, 0, 0, .1);
+    padding: 0 0 0 20px;
+    font-size: 14px;
+  }
+  
+  .downlevel code, .downlevel pre {
+    color: black;
+    background: none;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+  
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+  
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+  }
+  
+  </style>
+  
+  <script type="application/javascript">
+  
+  function is_downlevel_browser() {
+    if (bowser.isUnsupportedBrowser({ msie: "12", msedge: "16"},
+                                   window.navigator.userAgent)) {
+      return true;
+    } else {
+      return window.load_distill_framework === undefined;
+    }
+  }
+  
+  // show body when load is complete
+  function on_load_complete() {
+  
+    // set body to visible
+    document.body.style.visibility = 'visible';
+  
+    // force redraw for leaflet widgets
+    if (window.HTMLWidgets) {
+      var maps = window.HTMLWidgets.findAll(".leaflet");
+      $.each(maps, function(i, el) {
+        var map = this.getMap();
+        map.invalidateSize();
+        map.eachLayer(function(layer) {
+          if (layer instanceof L.TileLayer)
+            layer.redraw();
+        });
+      });
+    }
+  
+    // trigger 'shown' so htmlwidgets resize
+    $('d-article').trigger('shown');
+  }
+  
+  function init_distill() {
+  
+    init_common();
+  
+    // create front matter
+    var front_matter = $('<d-front-matter></d-front-matter>');
+    $('#distill-front-matter').wrap(front_matter);
+  
+    // create d-title
+    $('.d-title').changeElementType('d-title');
+  
+    // create d-byline
+    var byline = $('<d-byline></d-byline>');
+    $('.d-byline').replaceWith(byline);
+  
+    // create d-article
+    var article = $('<d-article></d-article>');
+    $('.d-article').wrap(article).children().unwrap();
+  
+    // move posts container into article
+    $('.posts-container').appendTo($('d-article'));
+  
+    // create d-appendix
+    $('.d-appendix').changeElementType('d-appendix');
+  
+    // create d-bibliography
+    var bibliography = $('<d-bibliography></d-bibliography>');
+    $('#distill-bibliography').wrap(bibliography);
+  
+    // flag indicating that we have appendix items
+    var appendix = $('.appendix-bottom').children('h3').length > 0;
+  
+    // replace citations with <d-cite>
+    $('.citation').each(function(i, val) {
+      appendix = true;
+      var cites = $(this).attr('data-cites').split(" ");
+      var dt_cite = $('<d-cite></d-cite>');
+      dt_cite.attr('key', cites.join());
+      $(this).replaceWith(dt_cite);
+    });
+    // remove refs
+    $('#refs').remove();
+  
+    // replace footnotes with <d-footnote>
+    $('.footnote-ref').each(function(i, val) {
+      appendix = true;
+      var href = $(this).attr('href');
+      var id = href.replace('#', '');
+      var fn = $('#' + id);
+      var fn_p = $('#' + id + '>p');
+      fn_p.find('.footnote-back').remove();
+      var text = fn_p.html();
+      var dtfn = $('<d-footnote></d-footnote>');
+      dtfn.html(text);
+      $(this).replaceWith(dtfn);
+    });
+    // remove footnotes
+    $('.footnotes').remove();
+  
+    $('h1.appendix, h2.appendix').each(function(i, val) {
+      $(this).changeElementType('h3');
+    });
+    $('h3.appendix').each(function(i, val) {
+      var id = $(this).attr('id');
+      $('.d-toc a[href="#' + id + '"]').parent().remove();
+      appendix = true;
+      $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('d-appendix'));
+    });
+  
+    // show d-appendix if we have appendix content
+    $("d-appendix").css('display', appendix ? 'grid' : 'none');
+  
+    // replace code blocks with d-code
+    $('pre>code').each(function(i, val) {
+      var code = $(this);
+      var pre = code.parent();
+      var clz = "";
+      var language = pre.attr('class');
+      if (language) {
+        // map unknown languages to "clike" (without this they just dissapear)
+        if ($.inArray(language, ["bash", "clike", "css", "go", "html",
+                                 "javascript", "js", "julia", "lua", "markdown",
+                                 "markup", "mathml", "python", "svg", "xml"]) == -1)
+          language = "clike";
+        language = ' language="' + language + '"';
+        var dt_code = $('<d-code block' + language + clz + '></d-code>');
+        dt_code.text(code.text());
+        pre.replaceWith(dt_code);
+      } else {
+        code.addClass('text-output').unwrap().changeElementType('pre');
+      }
+    });
+  
+    // localize layout chunks to just output
+    $('.layout-chunk').each(function(i, val) {
+  
+      // capture layout
+      var layout = $(this).attr('data-layout');
+  
+      // apply layout to markdown level block elements
+      var elements = $(this).children().not('d-code, pre.text-output, script');
+      elements.each(function(i, el) {
+        var layout_div = $('<div class="' + layout + '"></div>');
+        if (layout_div.hasClass('shaded')) {
+          var shaded_content = $('<div class="shaded-content"></div>');
+          $(this).wrap(shaded_content);
+          $(this).parent().wrap(layout_div);
+        } else {
+          $(this).wrap(layout_div);
+        }
+      });
+  
+  
+      // unwrap the layout-chunk div
+      $(this).children().unwrap();
+    });
+  
+    // load distill framework
+    load_distill_framework();
+  
+    // wait for window.distillRunlevel == 4 to do post processing
+    function distill_post_process() {
+  
+      if (!window.distillRunlevel || window.distillRunlevel < 4)
+        return;
+  
+      // hide author/affiliations entirely if we have no authors
+      var front_matter = JSON.parse($("#distill-front-matter").html());
+      var have_authors = front_matter.authors && front_matter.authors.length > 0;
+      if (!have_authors)
+        $('d-byline').addClass('hidden');
+  
+      // table of contents
+      if (have_authors) // adjust border if we are in authors
+        $('.d-toc').parent().addClass('d-article-with-toc');
+  
+      // strip links that point to #
+      $('.authors-affiliations').find('a[href="#"]').removeAttr('href');
+  
+      // hide elements of author/affiliations grid that have no value
+      function hide_byline_column(caption) {
+        $('d-byline').find('h3:contains("' + caption + '")').parent().css('visibility', 'hidden');
+      }
+  
+      // affiliations
+      var have_affiliations = false;
+      for (var i = 0; i<front_matter.authors.length; ++i) {
+        var author = front_matter.authors[i];
+        if (author.affiliation !== "&nbsp;") {
+          have_affiliations = true;
+          break;
+        }
+      }
+      if (!have_affiliations)
+        $('d-byline').find('h3:contains("Affiliations")').css('visibility', 'hidden');
+  
+      // published date
+      if (!front_matter.publishedDate)
+        hide_byline_column("Published");
+  
+      // document object identifier
+      var doi = $('d-byline').find('h3:contains("DOI")');
+      var doi_p = doi.next().empty();
+      if (!front_matter.doi) {
+        // if we have a citation and valid citationText then link to that
+        if ($('#citation').length > 0 && front_matter.citationText) {
+          doi.html('Citation');
+          $('<a href="#citation"></a>')
+            .text(front_matter.citationText)
+            .appendTo(doi_p);
+        } else {
+          hide_byline_column("DOI");
+        }
+      } else {
+        $('<a></a>')
+           .attr('href', "https://doi.org/" + front_matter.doi)
+           .html(front_matter.doi)
+           .appendTo(doi_p);
+      }
+  
+       // change plural form of authors/affiliations
+      if (front_matter.authors.length === 1) {
+        var grid = $('.authors-affiliations');
+        grid.children('h3:contains("Authors")').text('Author');
+        grid.children('h3:contains("Affiliations")').text('Affiliation');
+      }
+  
+      // inject pre code styles (can't do this with a global stylesheet b/c a shadow root is used)
+      $('d-code').each(function(i, val) {
+        var style = document.createElement('style');
+        style.innerHTML = 'pre code { padding-left: 10px; font-size: 12px; border-left: 2px solid rgba(0,0,0,0.1); } ' +
+                          '@media(min-width: 768px) { pre code { padding-left: 18px; font-size: 14px; } }';
+        if (this.shadowRoot)
+          this.shadowRoot.appendChild(style);
+      });
+  
+      // move appendix-bottom entries to the bottom
+      $('.appendix-bottom').appendTo('d-appendix').children().unwrap();
+      $('.appendix-bottom').remove();
+  
+      // clear polling timer
+      clearInterval(tid);
+  
+      // show body now that everything is ready
+      on_load_complete();
+    }
+  
+    var tid = setInterval(distill_post_process, 50);
+    distill_post_process();
+  
+  }
+  
+  function init_downlevel() {
+  
+    init_common();
+  
+     // insert hr after d-title
+    $('.d-title').after($('<hr class="section-separator"/>'));
+  
+    // check if we have authors
+    var front_matter = JSON.parse($("#distill-front-matter").html());
+    var have_authors = front_matter.authors && front_matter.authors.length > 0;
+  
+    // manage byline/border
+    if (!have_authors)
+      $('.d-byline').remove();
+    $('.d-byline').after($('<hr class="section-separator"/>'));
+    $('.d-byline a').remove();
+  
+    // remove toc
+    $('.d-toc-header').remove();
+    $('.d-toc').remove();
+    $('.d-toc-separator').remove();
+  
+    // move appendix elements
+    $('h1.appendix, h2.appendix').each(function(i, val) {
+      $(this).changeElementType('h3');
+    });
+    $('h3.appendix').each(function(i, val) {
+      $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('.d-appendix'));
+    });
+  
+  
+    // inject headers into references and footnotes
+    var refs_header = $('<h3></h3>');
+    refs_header.text('References');
+    $('#refs').prepend(refs_header);
+  
+    var footnotes_header = $('<h3></h3');
+    footnotes_header.text('Footnotes');
+    $('.footnotes').children('hr').first().replaceWith(footnotes_header);
+  
+    // move appendix-bottom entries to the bottom
+    $('.appendix-bottom').appendTo('.d-appendix').children().unwrap();
+    $('.appendix-bottom').remove();
+  
+    // remove appendix if it's empty
+    if ($('.d-appendix').children().length === 0)
+      $('.d-appendix').remove();
+  
+    // prepend separator above appendix
+    $('.d-appendix').before($('<hr class="section-separator" style="clear: both"/>'));
+  
+    // trim code
+    $('pre>code').each(function(i, val) {
+      $(this).html($.trim($(this).html()));
+    });
+  
+    // move posts-container right before article
+    $('.posts-container').insertBefore($('.d-article'));
+  
+    $('body').addClass('downlevel');
+  
+    on_load_complete();
+  }
+  
+  
+  function init_common() {
+  
+    // jquery plugin to change element types
+    (function($) {
+      $.fn.changeElementType = function(newType) {
+        var attrs = {};
+  
+        $.each(this[0].attributes, function(idx, attr) {
+          attrs[attr.nodeName] = attr.nodeValue;
+        });
+  
+        this.replaceWith(function() {
+          return $("<" + newType + "/>", attrs).append($(this).contents());
+        });
+      };
+    })(jQuery);
+  
+    // prevent underline for linked images
+    $('a > img').parent().css({'border-bottom' : 'none'});
+  
+    // mark non-body figures created by knitr chunks as 100% width
+    $('.layout-chunk').each(function(i, val) {
+      var figures = $(this).find('img, .html-widget');
+      if ($(this).attr('data-layout') !== "l-body") {
+        figures.css('width', '100%');
+      } else {
+        figures.css('max-width', '100%');
+        figures.filter("[width]").each(function(i, val) {
+          var fig = $(this);
+          fig.css('width', fig.attr('width') + 'px');
+        });
+  
+      }
+    });
+  
+    // auto-append index.html to post-preview links in file: protocol
+    // and in rstudio ide preview
+    $('.post-preview').each(function(i, val) {
+      if (window.location.protocol === "file:")
+        $(this).attr('href', $(this).attr('href') + "index.html");
+    });
+  
+    // get rid of index.html references in header
+    if (window.location.protocol !== "file:") {
+      $('.radix-site-header a[href]').each(function(i,val) {
+        $(this).attr('href', $(this).attr('href').replace("index.html", "./"));
+      });
+    }
+  
+    // add class to pandoc style tables
+    $('tr.header').parent('thead').parent('table').addClass('pandoc-table');
+    $('.kable-table').children('table').addClass('pandoc-table');
+  
+    // add figcaption style to table captions
+    $('caption').parent('table').addClass("figcaption");
+  
+    // initialize posts list
+    if (window.init_posts_list)
+      window.init_posts_list();
+  
+    // implmement disqus comment link
+    $('.disqus-comment-count').click(function() {
+      window.headroom_prevent_pin = true;
+      $('#disqus_thread').toggleClass('hidden');
+      if (!$('#disqus_thread').hasClass('hidden')) {
+        var offset = $(this).offset();
+        $(window).resize();
+        $('html, body').animate({
+          scrollTop: offset.top - 35
+        });
+      }
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    if (is_downlevel_browser())
+      init_downlevel();
+    else
+      window.addEventListener('WebComponentsReady', init_distill);
+  });
+  
+  </script>
+  
+  <!--/radix_placeholder_distill-->
+  <script src="OTB_interview_task_files/jquery-1.11.3/jquery.min.js"></script>
+  <script src="OTB_interview_task_files/bowser-1.9.3/bowser.min.js"></script>
+  <script src="OTB_interview_task_files/webcomponents-2.0.0/webcomponents.js"></script>
+  <script src="OTB_interview_task_files/distill-2.2.21/template.v2.js"></script>
+  <!--radix_placeholder_site_in_header-->
+  <!--/radix_placeholder_site_in_header-->
+
+
+</head>
+
+<body>
+
+<!--radix_placeholder_front_matter-->
+
+<script id="distill-front-matter" type="text/json">
+{"title":"On the Beach Interview Task","description":"A new article created using the Radix format.","authors":[{"author":"Phil Nash","authorURL":"#","affiliation":"&nbsp;","affiliationURL":"#"}],"publishedDate":"2019-01-20T00:00:00.000+00:00","citationText":"Nash, 2019"}
+</script>
+
+<!--/radix_placeholder_front_matter-->
+<!--radix_placeholder_navigation_before_body-->
+<!--/radix_placeholder_navigation_before_body-->
+<!--radix_placeholder_site_before_body-->
+<!--/radix_placeholder_site_before_body-->
+
+<div class="d-title">
+<h1>On the Beach Interview Task</h1>
+<p>A new article created using the Radix format.</p>
+</div>
+
+<div class="d-byline">
+  Phil Nash  
+  
+<br/>2019-01-20
+</div>
+
+<div class="d-article">
+<p>Hello, welcome to my project. I’ve used Radix to produce this, but the full code can be found in the github repo: <a href="https://github.com/shinobe-atobe/on_the_beach" class="uri">https://github.com/shinobe-atobe/on_the_beach</a></p>
+<h2 id="data-exploration">Data Exploration</h2>
+<p>I’m going to start with some simple exploration to help understand the data a bit better</p>
+<p>Let’s read in the data first:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+train_meta &lt;- read_csv(&quot;./data/otb_interview_task__train__meta_time_series.csv&quot;) 
+train_product &lt;- read_csv(&quot;./data/otb_interview_task__train__product_time_series.csv&quot;) </code></pre>
+</div>
+<p>There looks to be 140 individual products:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+n_distinct(train_product$product_id)</code></pre>
+<pre><code>
+[1] 140</code></pre>
+</div>
+<p>Sessions looks to be rising slower than bookings:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+train_product %&gt;%
+  group_by(date) %&gt;% 
+  summarise_at(vars(sessions, bookings), funs(sum)) %&gt;% 
+  gather(metric, value, 2:3) %&gt;% 
+  ggplot(aes(x = date, y = value)) + geom_line(aes(col = metric)) + facet_grid(rows = vars(metric), scales = &quot;free_y&quot;)</code></pre>
+<p><img src="OTB_interview_task_files/figure-html5/time_series-1.png" width="624" /></p>
+</div>
+<p>Adding conversion rate confirms this. Increase in conversion rate may mean there are non media related factors driving bookings, for example a better product offering or changing mix of new vs existing customers (presumably returning customers are more likely to convert)</p>
+<p>With this in mind I predict it will be easier to model sessions than bookings with the data we have</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+train_product %&gt;%
+  group_by(date) %&gt;% 
+  summarise_at(vars(sessions, bookings), funs(sum)) %&gt;% 
+  mutate(conversion_rate = bookings / sessions) %&gt;% 
+  gather(metric, value, 2:4) %&gt;% 
+  ggplot(aes(x = date, y = value)) + geom_line(aes(col = metric)) + facet_grid(rows = vars(metric), scales = &quot;free_y&quot;)</code></pre>
+<p><img src="OTB_interview_task_files/figure-html5/time_series_with_conv_rate-1.png" width="624" /></p>
+</div>
+<p>I am surprised to see so much noise in the data. When we split out each product, we can see that noise occouring across all of them</p>
+<p>What’s also interesting here is seeing a few products increase their sessions in H2 2016 - 2018. This may be important in answering the second question</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+train_product %&gt;%
+  gather(metric, value, 3:4) %&gt;% 
+  ggplot(aes(x = date, y = value, group = factor(product_id))) + geom_line(size = 0.05, alpha = 0.1) + facet_grid(rows = vars(metric), scales = &quot;free_y&quot;)</code></pre>
+<p><img src="OTB_interview_task_files/figure-html5/time_series_split-1.png" width="624" /></p>
+</div>
+<p>It looks like every product has a sizeable volume of products and bookings, so should be fine to model individually</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+train_product %&gt;%
+  group_by(product_id) %&gt;%
+  summarise(total_bookings = sum(bookings),
+            total_session = sum(sessions)) %&gt;% 
+  gather(metric, n, 2:3) %&gt;% 
+  ggplot(aes(x = factor(product_id), y = n, fill = metric)) + geom_bar(stat = &#39;identity&#39;) + 
+  facet_grid(rows = vars(metric), scales = &quot;free_y&quot;) + 
+  xlab(&quot;product_id&quot;) + theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
+<p><img src="OTB_interview_task_files/figure-html5/n_bookings_sessions-1.png" width="1440" /></p>
+</div>
+<h2 id="question-1">Question 1</h2>
+<h3 id="what-are-the-drivers-of-sessions-and-orders">What are the drivers of sessions and orders?</h3>
+<p>A bit of data cleaning to start, and the creation of a ‘total’ layer in the data:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+# tidy
+train_meta$Date &lt;- dmy(train_meta$Date)
+train_product$product_id = as.character(train_product$product_id)
+
+# create a total product
+total_product &lt;- train_product %&gt;% 
+  group_by(date) %&gt;% 
+  summarise(sessions = sum(sessions),
+          bookings = sum(bookings)) %&gt;% 
+  transmute(product_id = &quot;Total&quot;, date, sessions, bookings)
+
+# join datasets together 
+data_raw &lt;- train_product %&gt;% 
+  bind_rows(total_product) %&gt;%
+  left_join(train_meta, by = c(&#39;date&#39; = &#39;Date&#39;) ) %&gt;%
+  mutate(weather = 1) %&gt;%
+  spread(`Weather Index`, weather, fill = 0)
+
+# restrict model parameters if neccecary
+date_from &lt;- min(train_product$date)  
+date_to &lt;- max(train_product$date) </code></pre>
+</div>
+<h4 id="variable-transformations">Variable Transformations</h4>
+<p>I will be using a linear model with time series transformations of the data</p>
+<p>The three transformations I have used are: Adstock, rolling means and and lags</p>
+<p>Adstocks are used to simulate the effect of media sticking in peoples mind, visualised below. The black bars are the weeks TV ran, the coloured lines are the shape of response we expect to see for different decay rates.</p>
+<p>I tested a number of different decay rates for TV and found the best was 0.8</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+adstock &lt;- function(x, rate) {
+  
+  adstocked_variable &lt;- x 
+  
+  for (i in 1:(length(x)-1) ) {
+    adstocked_variable[i+1] &lt;-  x[i + 1] + (rate * adstocked_variable[i])
+  }
+  adstocked_variable
+}
+
+# chart showign 4 diferent adstock rates 
+tibble(Week_number = 0:42,
+       TV_spend = c(rep(0, 20), 100, 100, 100, rep(0, 20))) %&gt;% 
+  ggplot(aes(x = Week_number)) + 
+  geom_col(aes(y = TV_spend * 2)) + 
+  geom_line(aes(y = adstock(TV_spend, 0.1), col = &#39;blue&#39;)) +
+  geom_line(aes(y = adstock(TV_spend, 0.5), col = &#39;green&#39;)) +
+  geom_line(aes(y = adstock(TV_spend, 0.8), col = &#39;red&#39;)) +
+  geom_line(aes(y = adstock(TV_spend, 0.9), col = &#39;purple&#39;)) + 
+  ggtitle(&quot;The effects of differing decay rates on media impact&quot;) + 
+  ylab(&quot;TV driven sales&quot;)</code></pre>
+<p><img src="OTB_interview_task_files/figure-html5/total_model-1.png" width="624" /></p>
+</div>
+<h4 id="the-model">The Model</h4>
+<p>This is the main body of the model.</p>
+<p>I had three choices of model - ARIMA time series model - chosen not to go with because variables are not stationary</p>
+<p>Panel regression using fixed / random effects - to model each product as one</p>
+<p>150 separate linear models with variable transformations. I chose to go with this as it gave a readable output and fitted the data well</p>
+<p>Some new variables were created and tested.</p>
+<ul>
+<li><p>Exchange rate was tested with a lag due to the effect of any change probably not been felt immediately. It was found a better fit was found with a rolled mean with right allignment</p></li>
+<li><p>Multiple TV adstocks were tested, the best fit was found to be 0.8</p></li>
+<li><p>seasonality was tested beyond just weather. it was found that in April may June each year sales tended to be up</p></li>
+<li><p>weekends were found to drive more sales than weekdays, hence extra variables for Friday Saturday and Sunday</p></li>
+<li><p>TV was also logged to account for diminishing returns to spend</p></li>
+<li><p>The data was scaled so as to make volumes comparable</p></li>
+</ul>
+<h5 id="sessions">Sessions</h5>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+###########################################################
+#---------------Code for building MMM----------------------
+###########################################################
+product &lt;- &quot;Total&quot;  # choose product
+movav_k &lt;- 10
+adstock_rate &lt;- 0.8
+
+dates &lt;- data_raw %&gt;% 
+  filter(product_id == product) %&gt;%
+  select(date) %&gt;%
+  mutate(date = ymd(date)) %&gt;%
+  filter(date &gt;= date_from, date &lt;= date_to) %&gt;%
+  as.vector()
+
+data &lt;- data_raw %&gt;% 
+  mutate(Date = ymd(date)) %&gt;%
+  group_by(product_id) %&gt;% mutate(
+
+#-----INPUT NEW VARIABLES HERE---------
+TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate),
+DayFriday = ifelse(weekdays(Date) == &quot;Wednesday&quot;, 1, 0),
+DaySaturday = ifelse(weekdays(Date) == &quot;Saturday&quot;, 1, 0),
+DaySunday = ifelse(weekdays(Date) == &quot;Sunday&quot;, 1, 0),
+xmas = ifelse(Date %in% dmy(c(&#39;25/12/2017&#39;, &#39;25/12/2016&#39;, &#39;25/12/2015&#39;, &#39;25/12/2014&#39;)), 1 ,0),
+day_number = day(Date),
+#month = month(Date, label = T, abbr = F),
+exchange_rate_lag1 = lag(`Exchange Rate`),
+exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  &quot;extend&quot;, align = &quot;right&quot;)
+
+) %&gt;% 
+ungroup() %&gt;%
+  filter(Date &gt;= date_from, Date &lt;= date_to) %&gt;%
+  transmute( 
+# --------INPUT VARIABLE NAMES HERE -------   
+Date,
+product_id,
+Dep_Var = sessions,
+#bookings,
+#Day,
+DayFriday,
+DaySaturday,
+DaySunday,
+#month,
+TV_adstock = log(TV_adstock +1),
+#xmas,
+`Consumer Confidence Index`,
+#`Exchange Rate`,
+exchange_rate_moving_av,
+`Online Visibility`,
+#average_weather_days = average,
+better_than_average_weather_days = `better than average`,
+worse_than_Average_weather_days = `worse than average`
+
+) %&gt;%
+  filter(product_id %in% product) %&gt;% 
+  select(-product_id) 
+
+# optional scaling
+data &lt;- bind_cols(data %&gt;% select(Date, Dep_Var, TV_adstock), data %&gt;% select(-Date, -Dep_Var, -TV_adstock) %&gt;% scale() %&gt;% data.frame())
+
+#estimate / remove NAs if nececary
+#names(data); head(data); nrow(data)
+data[4:ncol(data)] &lt;- na.approx(data[4:ncol(data)], rule = 2)
+
+#run model
+fit &lt;- lm(select(data, Dep_Var, everything(), -Date))
+summary(fit)</code></pre>
+<pre><code>
+Call:
+lm(formula = select(data, Dep_Var, everything(), -Date))
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-39670  -8273    198   8356  51289 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                      210161.4      426.5 492.721  &lt; 2e-16
+TV_adstock                        26514.6      397.9  66.641  &lt; 2e-16
+DayFriday                         -1370.5      306.0  -4.478 8.00e-06
+DaySaturday                        2596.7      306.0   8.485  &lt; 2e-16
+DaySunday                          2694.5      306.0   8.804  &lt; 2e-16
+Consumer.Confidence.Index         20789.1      807.9  25.732  &lt; 2e-16
+exchange_rate_moving_av           10283.1      530.7  19.378  &lt; 2e-16
+Online.Visibility                 24789.7      792.6  31.275  &lt; 2e-16
+better_than_average_weather_days  -9473.3      304.0 -31.163  &lt; 2e-16
+worse_than_Average_weather_days    1599.8      302.3   5.292 1.36e-07
+                                    
+(Intercept)                      ***
+TV_adstock                       ***
+DayFriday                        ***
+DaySaturday                      ***
+DaySunday                        ***
+Consumer.Confidence.Index        ***
+exchange_rate_moving_av          ***
+Online.Visibility                ***
+better_than_average_weather_days ***
+worse_than_Average_weather_days  ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 12630 on 1816 degrees of freedom
+Multiple R-squared:  0.9244,    Adjusted R-squared:  0.924 
+F-statistic:  2467 on 9 and 1816 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p>Here I have plotted the actual sessions by day as well as the model prediction and the error each day:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/AVM_sessions-1.png" width="624" /></p>
+</div>
+<p>The outputs of the model can be converted to a contribution chart:</p>
+<p>What’s interesting to see here is that bad weather days impact sales negatively far more than good weather days impact positively</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/contribution_chart_sessions-1.png" width="624" /></p>
+</div>
+<p>We can also group this by year and look a the annual amount of sessions that each variable was driving:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+# annual stacked contribution chart 
+cont_chart_data %&gt;% 
+  group_by(year = year(Date)) %&gt;%
+  summarise_all(funs(sum)) %&gt;%
+  select(-Date) %&gt;% 
+  gather(Grouping, value, 2:ncol(.)) %&gt;% 
+  mutate(Grouping = factor(Grouping, levels = c(&#39;TV&#39;, &#39;Online_Visibility&#39;, &#39;Exchange_Rate&#39;, &#39;Weather&#39;,  &#39;Seasonality&#39;, &#39;Consumer_Confidence&#39;, &#39;Base_Sales&#39;))) %&gt;%
+  ggplot(aes(x = year, y = value)) + geom_bar(aes(fill = Grouping), position = &#39;stack&#39;, stat = &#39;identity&#39;) +ggtitle(paste(product, &quot;- Sessions&quot;))</code></pre>
+<p><img src="OTB_interview_task_files/figure-html5/year_stacked_sessions-1.png" width="624" /></p>
+</div>
+<h1 id="finally-we-can-adapt-the-model-to-loop-over-each-of-the-150-products-and-return-the-results-for-each-one">finally we can adapt the model to loop over each of the 150 products and return the results for each one</h1>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+# unique product IDs
+list_of_products &lt;- unique(train_product$product_id)
+names(list_of_products) &lt;- list_of_products
+
+# apply MMM to each one and save output 
+output_sessions_mmm &lt;- map(list_of_products, safely(build_mmm))</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>And now we can identify the main drivers of each of sessions, for each product:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/contribution_by_product_sessions-1.png" width="1440" /></p>
+</div>
+<h3 id="bookings">Bookings</h3>
+<p>The bookings model did not look as good as the sessions model, I believe this was due to the factors discussed a the beginning of the paper</p>
+<p>There are low volumes in bookings, especially towards the start of the sample period. I decided to only model the years 2016-17</p>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>I added one more transformation here, an exponential of the online presence variable (A power 2 fits best) we are simulating the effect that the more online presence increases, the more word of mouth will spread and the more the brand grows:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/var_vs_bookings-1.png" width="624" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>
+Call:
+lm(formula = select(data, Dep_Var, everything(), -Date))
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-998.28 -278.09   -4.71  281.54 1166.48 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                       1584.55      51.97  30.490  &lt; 2e-16
+TV_adstock                         457.39      21.44  21.329  &lt; 2e-16
+DayFriday                          -11.00      15.55  -0.708 0.479359
+DaySaturday                         47.60      15.49   3.073 0.002202
+DaySunday                           58.04      15.49   3.747 0.000193
+Consumer.Confidence.Index          -38.53      39.94  -0.965 0.334936
+exchange_rate_moving_av            -78.48      35.27  -2.225 0.026384
+online_visibility_exp             2019.99      42.21  47.859  &lt; 2e-16
+better_than_average_weather_days  -166.49      17.68  -9.418  &lt; 2e-16
+worse_than_Average_weather_days     32.45      14.36   2.259 0.024161
+                                    
+(Intercept)                      ***
+TV_adstock                       ***
+DayFriday                           
+DaySaturday                      ** 
+DaySunday                        ***
+Consumer.Confidence.Index           
+exchange_rate_moving_av          *  
+online_visibility_exp            ***
+better_than_average_weather_days ***
+worse_than_Average_weather_days  *  
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 405.1 on 720 degrees of freedom
+Multiple R-squared:  0.8601,    Adjusted R-squared:  0.8584 
+F-statistic: 491.9 on 9 and 720 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p>The residuals seem to show hetroscedasticity and autocorrealtion. This model needs improving</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/AVM_bookings-1.png" width="624" /></p>
+</div>
+<p>Lets create the contribution charts and see what they look like anyway.</p>
+<p>All the movement in the model is taken up through online visibility, which is trying to proxy for the missing variables</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/contribution_chart_bookings-1.png" width="624" /></p>
+</div>
+<p>Finally let’s loop over all the products</p>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre class="r"><code>
+# unique product IDs
+list_of_products &lt;- unique(train_product$product_id)
+names(list_of_products) &lt;- list_of_products
+
+# apply MMM to each one and save output 
+output_bookings_mmm &lt;- map(list_of_products, safely(build_mmm))</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>And now we can identify the main drivers of bookings, for each product:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/contribution_by_product_bookings-1.png" width="1728" /></p>
+</div>
+<h3 id="further-model-developments">Further model developments:</h3>
+<ul>
+<li>split TV into years - maybe it performs better in one year relative to another</li>
+<li>hyper parameter tune the moving averages and the TV adstoock for all models</li>
+</ul>
+<h2 id="question-2-identify-latent-factors-and-predict-groups">Question 2: Identify latent factors and predict groups</h2>
+<p>Let’s go over what details we have for each product:</p>
+<ul>
+<li>The number of sessions and bookings</li>
+<li>The conversion rate</li>
+<li>Whether the sessions increases in H2 2016</li>
+<li>The responsiveness to media / online presence / exchange rate / consumer confidence</li>
+<li>The volatility of bookings and sessions (proxied by the standard deviation)</li>
+</ul>
+<p>Let’s create a data frame that includes these factors:</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>
+# A tibble: 6 x 12
+  Consumer_Confid~ Exchange_Rate Online_Visibili~ Seasonality      TV
+             &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;
+1            0.475        1.34              0.374      -0.864 -0.0691
+2           -1.35        -0.319            -0.304       1.20   1.73  
+3           -1.54        -0.0416            0.113       1.18   1.37  
+4           -1.60        -0.686            -0.312       1.23   1.43  
+5           -1.46        -0.549            -0.591       1.33   1.64  
+6           -1.68        -0.351             0.314       1.35   1.51  
+# ... with 7 more variables: Weather &lt;dbl&gt;, n_total_sessions &lt;dbl&gt;,
+#   n_total_bookings &lt;dbl&gt;, sd_total_sessions &lt;dbl&gt;,
+#   sd_total_bookings &lt;dbl&gt;, av_conv_rate &lt;dbl&gt;, uplift_2017 &lt;dbl&gt;</code></pre>
+</div>
+<p>Now let’s identify how many clusters there are in that data</p>
+<p>There seems to only be 3 with the data we have. I perhaps expected more….</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/clusters_find_k-1.png" width="624" /></p>
+</div>
+<p>Assuming there are only 3 clusters, let’s run the kmeans and put each product into it’s group</p>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>Finally Lets take a look at those three clusters and see where the differences lie..</p>
+<p>Cluster 2 looks to be the most reactive to media (impulse destinations, promotions?), cluster 3 are the high volume products (perhaps low price?) and cluster 2 has a low correlation with consumer confidence (older customers?)</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>
+# A tibble: 3 x 13
+  cluster Consumer_Confid~ Exchange_Rate Online_Visibili~ Seasonality
+    &lt;int&gt;            &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;
+1       1           0.499         0.0254            0.503  0.00000612
+2       2           0.430         0.222             0.273 -0.0000287 
+3       3           0.0292        0.136             0.304  0.0000195 
+# ... with 8 more variables: TV &lt;dbl&gt;, Weather &lt;dbl&gt;,
+#   n_total_sessions &lt;dbl&gt;, n_total_bookings &lt;dbl&gt;,
+#   sd_total_sessions &lt;dbl&gt;, sd_total_bookings &lt;dbl&gt;,
+#   av_conv_rate &lt;dbl&gt;, uplift_2017 &lt;dbl&gt;</code></pre>
+</div>
+<h2 id="question-3-predict-sessions-and-bookings-in-2018">Question 3: predict sessions and bookings in 2018</h2>
+<p>We have one model per product. we can loop though each model and ask it to predict based on the 2018 dataset</p>
+<p>First step is to create the test dataset with the same variable transformations used in the models:</p>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>Then we can extract the bookings and the sessions models</p>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>finally we can map the dataset over each of the models</p>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>
+# A tibble: 6 x 4
+  product_id date       sessions bookings
+  &lt;chr&gt;      &lt;date&gt;        &lt;dbl&gt;    &lt;dbl&gt;
+1 89         2018-01-01    1812.     31.4
+2 89         2018-01-02    1841.     31.6
+3 89         2018-01-03    1811.     31.5
+4 89         2018-01-04    1900.     33.7
+5 89         2018-01-05    1904.     33.5
+6 89         2018-01-06    2094.     36.4</code></pre>
+</div>
+<p>It is worth sense checking to see if the results look credible</p>
+<p>I have taken a product at random, we can tag the predicted on the the actual:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/prediction_check-1.png" width="624" /></p>
+</div>
+<p>The model predicts that sessions will be about flat in 2018, or maybe down slightly</p>
+<p>Not the prettiest chart, but the explanation for this lies in the exchange rate, which has dropped in 2018:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="OTB_interview_task_files/figure-html5/prediction_check_explaination-1.png" width="624" /></p>
+</div>
+<p>Radix is a publication format for scientific and technical writing, native to the web.</p>
+<p>Learn more about using Radix at <a href="https://rstudio.github.io/radix" class="uri">https://rstudio.github.io/radix</a>.</p>
+<!--radix_placeholder_article_footer-->
+<!--/radix_placeholder_article_footer-->
+</div>
+
+<div class="d-appendix">
+</div>
+
+
+<!--radix_placeholder_site_after_body-->
+<!--/radix_placeholder_site_after_body-->
+<!--radix_placeholder_appendices-->
+<div class="appendix-bottom"></div>
+<!--/radix_placeholder_appendices-->
+<!--radix_placeholder_navigation_after_body-->
+<!--/radix_placeholder_navigation_after_body-->
+
+</body>
+
+</html>

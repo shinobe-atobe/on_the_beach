@@ -1,0 +1,1008 @@
+---
+title: "On the Beach Interview Task"
+author:
+- name: Phil Nash
+date: "`r Sys.Date()`"
+output:
+  radix::radix_article:
+    self_contained: no
+description: |
+  A new article created using the Radix format.
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(shiny)
+library(zoo)
+library(lubridate)
+library(plotly)
+
+```
+
+Hello, welcome to my project. I've used Radix to produce this, but the full code can be found in the github repo: https://github.com/shinobe-atobe/on_the_beach
+
+## Data Exploration
+
+I'm going to start with some simple exploration to help understand the data a bit better
+
+Let's read in the data first:
+
+```{r data, echo = T}
+train_meta <- read_csv("./data/otb_interview_task__train__meta_time_series.csv") 
+train_product <- read_csv("./data/otb_interview_task__train__product_time_series.csv") 
+```
+
+
+There looks to be 140 individual products:
+
+```{r n_products, echo = T}
+n_distinct(train_product$product_id)
+```
+
+
+Sessions looks to be rising slower than bookings:
+
+```{r time_series, echo = T}
+train_product %>%
+  group_by(date) %>% 
+  summarise_at(vars(sessions, bookings), funs(sum)) %>% 
+  gather(metric, value, 2:3) %>% 
+  ggplot(aes(x = date, y = value)) + geom_line(aes(col = metric)) + facet_grid(rows = vars(metric), scales = "free_y")
+```
+
+
+Adding conversion rate confirms this. Increase in conversion rate may mean there are non media related factors driving bookings, for example a better product offering or changing mix of new vs existing customers (presumably returning customers are more likely to convert)
+
+With this in mind I predict it will be easier to model sessions than bookings with the data we have
+
+```{r time_series_with_conv_rate, echo = T}
+train_product %>%
+  group_by(date) %>% 
+  summarise_at(vars(sessions, bookings), funs(sum)) %>% 
+  mutate(conversion_rate = bookings / sessions) %>% 
+  gather(metric, value, 2:4) %>% 
+  ggplot(aes(x = date, y = value)) + geom_line(aes(col = metric)) + facet_grid(rows = vars(metric), scales = "free_y")
+```
+
+
+I am surprised to see so much noise in the data. When we split out each product, we can see that noise occouring across all of them
+
+What's also interesting here is seeing a few products increase their sessions in H2 2016 - 2018. This may be important in answering the second question 
+
+```{r time_series_split, echo = T}
+train_product %>%
+  gather(metric, value, 3:4) %>% 
+  ggplot(aes(x = date, y = value, group = factor(product_id))) + geom_line(size = 0.05, alpha = 0.1) + facet_grid(rows = vars(metric), scales = "free_y")
+```
+
+
+It looks like every product has a sizeable volume of products and bookings, so should be fine to model individually
+
+```{r n_bookings_sessions, echo = T, fig.width=15}
+train_product %>%
+  group_by(product_id) %>%
+  summarise(total_bookings = sum(bookings),
+            total_session = sum(sessions)) %>% 
+  gather(metric, n, 2:3) %>% 
+  ggplot(aes(x = factor(product_id), y = n, fill = metric)) + geom_bar(stat = 'identity') + 
+  facet_grid(rows = vars(metric), scales = "free_y") + 
+  xlab("product_id") + theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust = 1))
+```
+  
+
+## Question 1
+
+### What are the drivers of sessions and orders?
+
+A bit of data cleaning to start, and the creation of a 'total' layer in the data:
+
+```{r define_data, echo = T}
+# tidy
+train_meta$Date <- dmy(train_meta$Date)
+train_product$product_id = as.character(train_product$product_id)
+
+# create a total product
+total_product <- train_product %>% 
+  group_by(date) %>% 
+  summarise(sessions = sum(sessions),
+          bookings = sum(bookings)) %>% 
+  transmute(product_id = "Total", date, sessions, bookings)
+
+# join datasets together 
+data_raw <- train_product %>% 
+  bind_rows(total_product) %>%
+  left_join(train_meta, by = c('date' = 'Date') ) %>%
+  mutate(weather = 1) %>%
+  spread(`Weather Index`, weather, fill = 0)
+
+# restrict model parameters if neccecary
+date_from <- min(train_product$date)  
+date_to <- max(train_product$date) 
+
+```
+
+#### Variable Transformations 
+
+I will be using a linear model with time series transformations of the data 
+
+The three transformations I have used are: Adstock, rolling means and and lags
+
+Adstocks are used to simulate the effect of media sticking in peoples mind, visualised below. The black bars are the weeks TV ran, the coloured lines are the shape of response we expect to see for different decay rates.
+
+I tested a number of different decay rates for TV and found the best was 0.8
+
+```{r total_model, echo = T, collapse = TRUE}
+adstock <- function(x, rate) {
+  
+  adstocked_variable <- x 
+  
+  for (i in 1:(length(x)-1) ) {
+    adstocked_variable[i+1] <-  x[i + 1] + (rate * adstocked_variable[i])
+  }
+  adstocked_variable
+}
+
+# chart showign 4 diferent adstock rates 
+tibble(Week_number = 0:42,
+       TV_spend = c(rep(0, 20), 100, 100, 100, rep(0, 20))) %>% 
+  ggplot(aes(x = Week_number)) + 
+  geom_col(aes(y = TV_spend * 2)) + 
+  geom_line(aes(y = adstock(TV_spend, 0.1), col = 'blue')) +
+  geom_line(aes(y = adstock(TV_spend, 0.5), col = 'green')) +
+  geom_line(aes(y = adstock(TV_spend, 0.8), col = 'red')) +
+  geom_line(aes(y = adstock(TV_spend, 0.9), col = 'purple')) + 
+  ggtitle("The effects of differing decay rates on media impact") + 
+  ylab("TV driven sales")
+```
+
+
+
+#### The Model 
+
+This is the main body of the model. 
+
+I had three choices of model - ARIMA time series model - chosen not to go with because variables are not stationary
+
+Panel regression using fixed / random effects - to model each product as one 
+
+150 separate linear models with variable transformations. I chose to go with this as it gave a readable output and fitted the data well 
+
+Some new variables were created and tested.
+
+- Exchange rate was tested with a lag due to the effect of any change probably not been felt immediately. It was found a better fit was found with a rolled mean with right allignment
+
+- Multiple TV adstocks were tested, the best fit was found to be 0.8
+
+- seasonality was tested beyond just weather. it was found that in April may June each year sales tended to be up
+
+- weekends were found to drive more sales than weekdays, hence extra variables for Friday Saturday and Sunday
+
+- TV was also logged to account for diminishing returns to spend 
+
+- The data was scaled so as to make volumes comparable 
+
+##### Sessions
+
+``` {r model_sessions, echo = T}
+###########################################################
+#---------------Code for building MMM----------------------
+###########################################################
+product <- "Total"  # choose product
+movav_k <- 10
+adstock_rate <- 0.8
+
+dates <- data_raw %>% 
+  filter(product_id == product) %>%
+  select(date) %>%
+  mutate(date = ymd(date)) %>%
+  filter(date >= date_from, date <= date_to) %>%
+  as.vector()
+
+data <- data_raw %>% 
+  mutate(Date = ymd(date)) %>%
+  group_by(product_id) %>% mutate(
+
+#-----INPUT NEW VARIABLES HERE---------
+TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate),
+DayFriday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
+DaySaturday = ifelse(weekdays(Date) == "Saturday", 1, 0),
+DaySunday = ifelse(weekdays(Date) == "Sunday", 1, 0),
+xmas = ifelse(Date %in% dmy(c('25/12/2017', '25/12/2016', '25/12/2015', '25/12/2014')), 1 ,0),
+day_number = day(Date),
+#month = month(Date, label = T, abbr = F),
+exchange_rate_lag1 = lag(`Exchange Rate`),
+exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  "extend", align = "right")
+
+) %>% 
+ungroup() %>%
+  filter(Date >= date_from, Date <= date_to) %>%
+  transmute( 
+# --------INPUT VARIABLE NAMES HERE -------   
+Date,
+product_id,
+Dep_Var = sessions,
+#bookings,
+#Day,
+DayFriday,
+DaySaturday,
+DaySunday,
+#month,
+TV_adstock = log(TV_adstock +1),
+#xmas,
+`Consumer Confidence Index`,
+#`Exchange Rate`,
+exchange_rate_moving_av,
+`Online Visibility`,
+#average_weather_days = average,
+better_than_average_weather_days = `better than average`,
+worse_than_Average_weather_days = `worse than average`
+
+) %>%
+  filter(product_id %in% product) %>% 
+  select(-product_id) 
+
+# optional scaling
+data <- bind_cols(data %>% select(Date, Dep_Var, TV_adstock), data %>% select(-Date, -Dep_Var, -TV_adstock) %>% scale() %>% data.frame())
+
+#estimate / remove NAs if nececary
+#names(data); head(data); nrow(data)
+data[4:ncol(data)] <- na.approx(data[4:ncol(data)], rule = 2)
+
+#run model
+fit <- lm(select(data, Dep_Var, everything(), -Date))
+summary(fit)
+
+
+```
+
+
+Here I have plotted the actual sessions by day as well as the model prediction and the error each day:
+
+```{r AVM_sessions}
+#Build Actual vs Model (AVM)
+AVM <- data.frame(cbind(Actual = data[["Dep_Var"]], Fitted = fitted(fit)))
+AVM <- cbind(Date = dates, AVM)
+AVM <- mutate(AVM, Residual = Actual - Fitted)
+
+#AVM plot
+ggplot(AVM, aes(x = date)) + 
+  geom_line(aes(y = Actual, colour = "Actual")) + 
+  geom_line(aes(y = Fitted, colour = "Fitted")) +
+  geom_line(aes(y = Residual, colour = "Resid")) 
+```
+
+The outputs of the model can be converted to a contribution chart:
+
+What's interesting to see here is that bad weather days impact sales negatively far more than good weather days impact positively
+
+``` {r contribution_chart_sessions}
+variable_groupings <- read_csv("Variable Groupings.csv")
+
+variables <- data %>%
+  mutate(Intercept = 1) %>%
+  select( Intercept, everything(), -Date, -Dep_Var)
+
+Contribution <- bind_cols(select(data, Date, Dep_Var), data.frame(mapply(`*`,variables,fit$coefficients)))
+
+#generate sand diagram
+cont_chart_data <- Contribution %>% 
+  #mutate(Week_commencing = ymd('0000-01-01') + years(year(Date)) + weeks(week(Date) - 1) ) %>% 
+  #group_by(Week_commencing) %>% 
+  select( -Dep_Var) %>%
+  #summarise_all(funs(sum)) %>% 
+  gather(Var_Name, value, 2:ncol(.)) %>%
+  left_join(variable_groupings, by = 'Var_Name') %>% 
+  group_by(Date, 
+           Grouping) %>%
+  summarise(value = sum(value)) %>%
+  spread(Grouping, value) %>%
+  #filter(Week_commencing != '2016-12-30') %>%  
+  data.frame() %>% 
+  mutate_at(3:8, rollmean, k = 7, allign = 'centre', fill = "extend")
+
+min_seas <-  min(cont_chart_data$Seasonality)
+min_conf <-  min(cont_chart_data$Consumer_Confidence)
+min_fx <-  min(cont_chart_data$Exchange_Rate)
+min_onl <-  min(cont_chart_data$Online_Visibility)
+
+cont_chart_data <- cont_chart_data %>% 
+  mutate(Base_Sales = Base_Sales + min(Online_Visibility) + min(Exchange_Rate) + min(Consumer_Confidence), # max(.$Seasonality)
+          Exchange_Rate = Exchange_Rate - min(Exchange_Rate),
+          Online_Visibility = Online_Visibility - min(Online_Visibility),
+          #Seasonality = Seasonality - min(Seasonality),
+          Consumer_Confidence = Consumer_Confidence - min(Consumer_Confidence))
+
+cont_chart_data %>% 
+  gather(Grouping, value, 2:ncol(.)) %>% 
+  mutate(Grouping = factor(Grouping, levels = c('TV', 'Online_Visibility', 'Exchange_Rate', 'Weather',  'Seasonality', 'Consumer_Confidence', 'Base_Sales'))) %>%
+  ggplot(aes(x = Date, y = value)) + geom_area(aes(fill = Grouping), position = 'Stack') +ggtitle(paste(product, "- Sessions"))
+
+```
+
+
+We can also group this by year and look a the annual amount of sessions that each variable was driving:
+
+```{r year_stacked_sessions, echo = T}
+
+# annual stacked contribution chart 
+cont_chart_data %>% 
+  group_by(year = year(Date)) %>%
+  summarise_all(funs(sum)) %>%
+  select(-Date) %>% 
+  gather(Grouping, value, 2:ncol(.)) %>% 
+  mutate(Grouping = factor(Grouping, levels = c('TV', 'Online_Visibility', 'Exchange_Rate', 'Weather',  'Seasonality', 'Consumer_Confidence', 'Base_Sales'))) %>%
+  ggplot(aes(x = year, y = value)) + geom_bar(aes(fill = Grouping), position = 'stack', stat = 'identity') +ggtitle(paste(product, "- Sessions"))
+
+```
+
+# finally we can adapt the model to loop over each of the 150 products and return the results for each one
+
+```{r model_loop_sessions, echo = F, eval = T}
+
+build_mmm <- function(product = "Total") {
+
+dates <- data_raw %>% 
+  filter(product_id == product) %>%
+  select(date) %>%
+  mutate(date = ymd(date)) %>%
+  filter(date >= date_from, date <= date_to) %>%
+  as.vector()
+
+data <- data_raw %>% 
+  mutate(Date = ymd(date)) %>%
+  group_by(product_id) %>% mutate(
+    
+    #-----INPUT NEW VARIABLES HERE---------
+    TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate), #Adstockrates <- tibble(Country = list_of_markets, Adstock = c(0.4, 0.8, 0.8, 0.92, 0.8)) 
+    #Day = ifelse(weekdays(Date) == "Monday", 0, weekdays(Date)),
+    DayFriday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
+    DaySaturday = ifelse(weekdays(Date) == "Saturday", 1, 0),
+    DaySunday = ifelse(weekdays(Date) == "Sunday", 1, 0),
+    xmas = ifelse(Date %in% dmy(c('25/12/2017', '25/12/2016', '25/12/2015', '25/12/2014')), 1 ,0), #dummy variable
+    day_number = day(Date),
+    #month = month(Date, label = T, abbr = F),
+    #Seasonality = predict(loess(Visibility ~ day_number, span=0.15), day_number)
+    #Seasonality = rollmean(x = Temperature.Fahrenheit, 30, align = "right", fill = NA)
+    exchange_rate_lag1 = lag(`Exchange Rate`),
+    exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  "extend", align = "right")
+    
+  ) %>% 
+  ungroup() %>%
+  filter(Date >= date_from, Date <= date_to) %>%
+  transmute( 
+    # --------INPUT VARIABLE NAMES HERE -------   
+    Date,
+    product_id,
+    Dep_Var = sessions,
+    #bookings,
+    #Day,
+    DayFriday,
+    DaySaturday,
+    DaySunday,
+    #month,
+    TV_adstock = log(TV_adstock +1),
+    #xmas,
+    `Consumer Confidence Index`,
+    #`Exchange Rate`,
+    exchange_rate_moving_av,
+    `Online Visibility`,
+    #average_weather_days = average,
+    better_than_average_weather_days = `better than average`,
+    worse_than_Average_weather_days = `worse than average`
+    
+  ) %>%
+  filter(product_id %in% product) %>% select(-product_id) 
+
+
+# optional scaling
+data <- bind_cols(data %>% select(Date, Dep_Var, TV_adstock), data %>% select(-Date, -Dep_Var, -TV_adstock) %>% scale() %>% data.frame())
+
+#run model
+fit <- lm(select(data, Dep_Var, everything(), -Date))
+#tidy(summary(fit))
+
+variables <- data %>%
+  mutate(Intercept = 1) %>%
+  select( Intercept, everything(), -Date, -Dep_Var)
+
+Contribution <- bind_cols(select(data, Date, Dep_Var), data.frame(mapply(`*`,variables,fit$coefficients)))
+
+#generate sand diagram
+cont_chart_data <- Contribution %>% 
+  #mutate(Week_commencing = ymd('0000-01-01') + years(year(Date)) + weeks(week(Date) - 1) ) %>% 
+  #group_by(Week_commencing) %>% 
+  select( -Dep_Var) %>%
+  #summarise_all(funs(sum)) %>% 
+  gather(Var_Name, value, 2:ncol(.)) %>%
+  left_join(variable_groupings, by = 'Var_Name') %>% 
+  group_by(Date, 
+           Grouping) %>%
+  summarise(value = sum(value)) %>%
+  spread(Grouping, value) %>%
+  #filter(Week_commencing != '2016-12-30') %>%  
+  data.frame() %>% 
+  mutate_at(3:8, rollmean, k = 7, allign = 'centre', fill = "extend")
+
+min_seas <-  min(cont_chart_data$Seasonality)
+min_conf <-  min(cont_chart_data$Consumer_Confidence)
+min_fx <-  min(cont_chart_data$Exchange_Rate)
+min_onl <-  min(cont_chart_data$Online_Visibility)
+
+contribution <- cont_chart_data %>% 
+  mutate(Base_Sales = Base_Sales + min(Online_Visibility) + min(Exchange_Rate) + min(Consumer_Confidence), # max(.$Seasonality)
+         Exchange_Rate = Exchange_Rate - min(Exchange_Rate),
+         Online_Visibility = Online_Visibility - min(Online_Visibility),
+         #Seasonality = Seasonality - min(Seasonality),
+         Consumer_Confidence = Consumer_Confidence - min(Consumer_Confidence)
+  ) %>% select(-Date) %>% colSums()
+
+list(contribution = contribution, model = fit)
+
+}
+
+```
+
+```{r map_sessions_models, echo = T, eval = F}
+# unique product IDs
+list_of_products <- unique(train_product$product_id)
+names(list_of_products) <- list_of_products
+
+# apply MMM to each one and save output 
+output_sessions_mmm <- map(list_of_products, safely(build_mmm))
+
+```
+
+```{r read_output_sessions, echo = F, eval = T}
+# the above block takes a while to run, use this instead to speed up
+output_sessions_mmm <- read_rds("./outputs/output_sessions_mmm")
+```
+
+And now we can identify the main drivers of each of sessions, for each product:
+
+```{r contribution_by_product_sessions, fig.width=15, fig.height=10}
+# pull out the contributions from each model 
+sessions_output <- output_sessions_mmm %>% 
+  transpose() %>% 
+  pluck('result') %>% 
+  transpose() %>% 
+  pluck('contribution') %>% 
+  bind_rows() %>% 
+  mutate(variable = c("Base_Sales",
+                      "Consumer_Confidence",
+                      "Exchange_Rate",
+                      "Online_Visibility",
+                      "Seasonality",        
+                      "TV",
+                      "Weather")) %>% 
+  select(variable,  everything()) %>% 
+  mutate(variable = factor(variable,  levels = c('TV', 'Online_Visibility', 
+                                                 'Exchange_Rate', 'Weather',  
+                                                 'Seasonality', 'Consumer_Confidence', 
+                                                 'Base_Sales')))
+# chart as 100% bar plots 
+sessions_output %>% 
+  gather(product, value, 2:ncol(.)) %>% 
+  ggplot(aes(x = product, y = value, fill = variable)) + geom_bar(position = 'fill', stat = 'identity') + 
+   coord_cartesian(ylim = c(-0.01 , 1)) + theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+### Bookings
+
+The bookings model did not look as good as the sessions model, I believe this was due to the factors discussed a the beginning of the paper
+
+There are low volumes in bookings, especially towards the start of the sample period. I decided to only model the years 2016-17
+
+``` {r model_bookings, echo = F, eval = T}
+data <- data_raw %>% 
+  mutate(Date = ymd(date)) %>%
+  group_by(product_id) %>% mutate(
+
+#-----INPUT NEW VARIABLES HERE---------
+TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate), 
+DayFriday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
+DaySaturday = ifelse(weekdays(Date) == "Saturday", 1, 0),
+DaySunday = ifelse(weekdays(Date) == "Sunday", 1, 0),
+xmas = ifelse(Date %in% dmy(c('25/12/2017', '25/12/2016', '25/12/2015', '25/12/2014')), 1 ,0), #dummy variable
+day_number = day(Date),
+trend = 1:n_distinct(Date),
+#month = month(Date, label = T, abbr = F),
+#Seasonality = predict(loess(Visibility ~ day_number, span=0.15), day_number)
+exchange_rate_lag1 = lag(`Exchange Rate`),
+exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  "extend", align = "right")
+
+) %>% 
+ungroup() %>%
+  filter(Date >= date_from, Date <= date_to) %>%
+  transmute( 
+# --------INPUT VARIABLE NAMES HERE -------   
+Date,
+product_id,
+Dep_Var = bookings,
+#bookings,
+#Day,
+DayFriday,
+DaySaturday,
+DaySunday,
+#month,
+TV_adstock = log(TV_adstock +1),
+#xmas,
+`Consumer Confidence Index`,
+#`Exchange Rate`,
+exchange_rate_moving_av,
+#`Online Visibility`,
+online_visibility_exp = `Online Visibility`^2,
+#trend,
+#average_weather_days = average,
+better_than_average_weather_days = `better than average`,
+worse_than_Average_weather_days = `worse than average`
+
+) %>%
+  filter(product_id %in% product) %>% 
+  select(-product_id) 
+
+# optional scaling
+data <- bind_cols(data %>% select(Date, Dep_Var, TV_adstock), 
+                  data %>% select(-Date, -Dep_Var, -TV_adstock) %>% 
+                    scale() %>% data.frame()) %>% 
+  filter(Date > dmy("01-01-2016"))
+
+#run model - bookings
+fit <- lm(select(data, Dep_Var, everything(), -Date))
+
+```
+
+I added one more transformation here, an exponential of the online presence variable (A power 2 fits best) we are simulating the effect that the more online presence increases, the more word of mouth will spread and the more the brand grows:
+
+``` {r var_vs_bookings, echo = F}
+Variables_VS_Sales <- function(Dep_Var, variable) {
+  data %>% 
+    select(1, Dep_Var, variable) %>% 
+    mutate_at(.funs = funs(scale), .vars = c(Dep_Var, variable)) %>%
+    ggplot(aes(x = Date)) +geom_line(aes_string(y = Dep_Var)) + geom_line(aes_string(y = variable), stat = 'identity', col = 'red')
+}
+
+Variables_VS_Sales(Dep_Var = "Dep_Var", variable = "online_visibility_exp" ) + 
+  ylab("Bookings / Online Presence exp") +ggtitle("Red = online_presence^2, Black = bookings")
+```
+
+``` {r model_summary_bookings}
+summary(fit)
+```
+
+The residuals seem to show hetroscedasticity and autocorrealtion. This model needs improving
+
+```{r AVM_bookings}
+#Build Actual vs Model (AVM)
+AVM <- data.frame(cbind(Actual = data[["Dep_Var"]], Fitted = fitted(fit)))
+AVM <- cbind(date = data$Date, AVM)
+AVM <- mutate(AVM, Residual = Actual - Fitted)
+
+#AVM plot
+ggplot(AVM, aes(x = date)) + 
+  geom_line(aes(y = Actual, colour = "Actual")) + 
+  geom_line(aes(y = Fitted, colour = "Fitted")) +
+  geom_line(aes(y = Residual, colour = "Resid")) 
+```
+
+Lets create the contribution charts and see what they look like anyway.
+
+All the movement in the model is taken up through online visibility, which is trying to proxy for the missing variables
+
+``` {r contribution_chart_bookings, echo = F}
+variables <- data %>%
+  mutate(Intercept = 1) %>%
+  select( Intercept, everything(), -Date, -Dep_Var)
+
+Contribution <- bind_cols(select(data, Date, Dep_Var), data.frame(mapply(`*`,variables,fit$coefficients)))
+
+#generate sand diagram
+cont_chart_data <- Contribution %>% 
+  #mutate(Week_commencing = ymd('0000-01-01') + years(year(Date)) + weeks(week(Date) - 1) ) %>% 
+  #group_by(Week_commencing) %>% 
+  select( -Dep_Var) %>%
+  #summarise_all(funs(sum)) %>% 
+  gather(Var_Name, value, 2:ncol(.)) %>%
+  left_join(variable_groupings, by = 'Var_Name') %>% 
+  group_by(Date, 
+           Grouping) %>%
+  summarise(value = sum(value)) %>%
+  spread(Grouping, value) %>%
+  #filter(Week_commencing != '2016-12-30') %>%  
+  data.frame() %>% 
+  mutate_at(3:8, rollmean, k = 7, allign = 'centre', fill = "extend")
+
+min_seas <-  min(cont_chart_data$Seasonality)
+min_conf <-  min(cont_chart_data$Consumer_Confidence)
+min_fx <-  min(cont_chart_data$Exchange_Rate)
+min_onl <-  min(cont_chart_data$Online_Visibility)
+
+cont_chart_data %>% 
+  mutate(Base_Sales = Base_Sales + min(Online_Visibility) + min(Exchange_Rate) + min(Consumer_Confidence), # max(.$Seasonality)
+          Exchange_Rate = Exchange_Rate - min(Exchange_Rate),
+          Online_Visibility = Online_Visibility - min(Online_Visibility),
+          #Seasonality = Seasonality - min(Seasonality),
+          Consumer_Confidence = Consumer_Confidence - min(Consumer_Confidence)
+  ) %>% 
+  #select(-Paid_Ads) %>%
+  gather(Grouping, value, 2:ncol(.)) %>% 
+  mutate(Grouping = factor(Grouping, levels = c('TV', 'Online_Visibility', 'Exchange_Rate', 'Weather',  'Seasonality', 'Consumer_Confidence', 'Base_Sales'))) %>%
+  ggplot(aes(x = Date, y = value)) + geom_area(aes(fill = Grouping), position = 'Stack') +ggtitle(paste(product, "- Sessions"))
+
+```
+
+Finally let's loop over all the products 
+
+```{r model_loop_bookings, echo = F, eval = T}
+
+build_mmm <- function(product = "Total") {
+
+dates <- data_raw %>% 
+  filter(product_id == product) %>%
+  select(date) %>%
+  mutate(date = ymd(date)) %>%
+  filter(date >= dmy("01-01-2016"), date <= date_to) %>%
+  as.vector()
+
+data <- data_raw %>% 
+  mutate(Date = ymd(date)) %>%
+  group_by(product_id) %>% mutate(
+
+#-----INPUT NEW VARIABLES HERE---------
+TV_adstock = adstock(`TV Ad Reach`, rate = adstock_rate), #Adstockrates <- tibble(Country = list_of_markets, Adstock = c(0.4, 0.8, 0.8, 0.92, 0.8)) 
+#Day = ifelse(weekdays(Date) == "Monday", 0, weekdays(Date)),
+DayFriday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
+DaySaturday = ifelse(weekdays(Date) == "Saturday", 1, 0),
+DaySunday = ifelse(weekdays(Date) == "Sunday", 1, 0),
+xmas = ifelse(Date %in% dmy(c('25/12/2017', '25/12/2016', '25/12/2015', '25/12/2014')), 1 ,0), #dummy variable
+day_number = day(Date),
+trend = 1:n_distinct(Date),
+#month = month(Date, label = T, abbr = F),
+#Seasonality = predict(loess(Visibility ~ day_number, span=0.15), day_number)
+#Seasonality = rollmean(x = Temperature.Fahrenheit, 30, align = "right", fill = NA)
+exchange_rate_lag1 = lag(`Exchange Rate`),
+exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  "extend", align = "right")
+
+) %>% 
+ungroup() %>%
+  filter(Date >= date_from, Date <= date_to) %>%
+  transmute( 
+# --------INPUT VARIABLE NAMES HERE -------   
+Date,
+product_id,
+Dep_Var = bookings,
+#bookings,
+#Day,
+DayFriday,
+DaySaturday,
+DaySunday,
+#month,
+TV_adstock = log(TV_adstock +1),
+#xmas,
+`Consumer Confidence Index`,
+#`Exchange Rate`,
+exchange_rate_moving_av,
+#`Online Visibility`,
+online_visibility_exp = `Online Visibility`^2,
+#trend,
+#average_weather_days = average,
+better_than_average_weather_days = `better than average`,
+worse_than_Average_weather_days = `worse than average`
+
+) %>%
+  filter(product_id %in% product) %>% 
+  select(-product_id) 
+
+
+# optional scaling
+data <- bind_cols(data %>% select(Date, Dep_Var, TV_adstock), data %>% select(-Date, -Dep_Var, -TV_adstock) %>%      scale() %>% data.frame()) %>% 
+  filter(Date >= dmy("01-01-2016"))
+
+#run model
+fit <- lm(select(data, Dep_Var, everything(), -Date))
+#tidy(summary(fit))
+
+variables <- data %>%
+  mutate(Intercept = 1) %>%
+  select( Intercept, everything(), -Date, -Dep_Var)
+
+Contribution <- bind_cols(select(data, Date, Dep_Var), data.frame(mapply(`*`,variables,fit$coefficients)))
+
+#generate sand diagram
+cont_chart_data <- Contribution %>% 
+  #mutate(Week_commencing = ymd('0000-01-01') + years(year(Date)) + weeks(week(Date) - 1) ) %>% 
+  #group_by(Week_commencing) %>% 
+  select( -Dep_Var) %>%
+  #summarise_all(funs(sum)) %>% 
+  gather(Var_Name, value, 2:ncol(.)) %>%
+  left_join(variable_groupings, by = 'Var_Name') %>% 
+  group_by(Date, 
+           Grouping) %>%
+  summarise(value = sum(value)) %>%
+  spread(Grouping, value) %>%
+  #filter(Week_commencing != '2016-12-30') %>%  
+  data.frame() %>% 
+  mutate_at(3:8, rollmean, k = 7, allign = 'centre', fill = "extend")
+
+min_seas <-  min(cont_chart_data$Seasonality)
+min_conf <-  min(cont_chart_data$Consumer_Confidence)
+min_fx <-  min(cont_chart_data$Exchange_Rate)
+min_onl <-  min(cont_chart_data$Online_Visibility)
+
+contribution <- cont_chart_data %>% 
+  mutate(Base_Sales = Base_Sales + min(Online_Visibility) + min(Exchange_Rate) + min(Consumer_Confidence), # max(.$Seasonality)
+         Exchange_Rate = Exchange_Rate - min(Exchange_Rate),
+         Online_Visibility = Online_Visibility - min(Online_Visibility),
+         #Seasonality = Seasonality - min(Seasonality),
+         Consumer_Confidence = Consumer_Confidence - min(Consumer_Confidence)
+  ) %>% select(-Date) %>% colSums()
+
+list(contribition = contribution, model = fit)
+
+}
+
+```
+
+```{r map_bookings_models, echo = T, eval = F}
+# unique product IDs
+list_of_products <- unique(train_product$product_id)
+names(list_of_products) <- list_of_products
+
+# apply MMM to each one and save output 
+output_bookings_mmm <- map(list_of_products, safely(build_mmm))
+
+```
+
+```{r read_output_bookings, echo = F, eval = T}
+# the above block takes a while to run, use this instead to speed up
+output_bookings_mmm <- read_rds("./outputs/output_bookings_mmm")
+```
+
+And now we can identify the main drivers of bookings, for each product:
+
+```{r contribution_by_product_bookings, eval = T, echo = F, fig.width=18, fig.height=12}
+# pull out the contributions from each model 
+bookings_output <- output_bookings_mmm %>% 
+  transpose() %>% 
+  pluck('result') %>% 
+  transpose() %>% 
+  pluck('contribition') %>% 
+  bind_rows() %>% 
+  mutate(variable = c("Base_Sales",
+                      "Consumer_Confidence",
+                      "Exchange_Rate",
+                      "Online_Visibility",
+                      "Seasonality",        
+                      "TV",
+                      "Weather")) %>% 
+  select(variable,  everything()) %>% 
+  mutate(variable = factor(variable,  levels = c('TV', 'Online_Visibility', 
+                                                 'Exchange_Rate', 'Weather',  
+                                                 'Seasonality', 'Consumer_Confidence', 
+                                                 'Base_Sales')))
+# chart as 100% bar plots 
+bookings_output %>% 
+  gather(product, value, 2:ncol(.)) %>% 
+  ggplot(aes(x = product, y = value, fill = variable)) + geom_bar(position = 'fill', stat = 'identity') + 
+   coord_cartesian(ylim = c(-0.01 , 1)) + theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+### Further model developments: 
+
+- split TV into years - maybe it performs better in one year relative to another
+- hyper parameter tune the moving averages and the TV adstoock for all models 
+
+## Question 2: Identify latent factors and predict groups
+
+Let's go over what details we have for each product: 
+
+- The number of sessions and bookings
+- The conversion rate
+- Whether the sessions increases in H2 2016
+- The responsiveness to media / online presence / exchange rate / consumer confidence
+- The volatility of bookings and sessions (proxied by the standard deviation)
+
+Let's create a data frame that includes these factors:
+
+```{r clusters_data_prep}
+
+# seperate the names for later... 
+names <- as.character(sessions_output$variable)
+
+# let's take the output from the sessions model and index each variable to base sales 
+prod_details <- sessions_output %>%
+ select(-variable) %>% 
+  t() %>%
+  as.data.frame() %>% 
+  rownames_to_column("product_id") %>%
+  set_names(c("product_id", names)) %>% 
+  mutate_at(3:8, funs(. / Base_Sales)) %>%
+  select(-Base_Sales)
+
+# for each product calculate the mean, conversion rate, standard deviation and 2017 uplift
+number_of_products <- train_product  %>% 
+  mutate(conv_rate = bookings / sessions) %>% 
+  group_by(product_id) %>% 
+  summarise(n_total_sessions = sum(sessions), 
+            n_total_bookings = sum(bookings),
+            sd_total_sessions = sd(sessions),
+            sd_total_bookings = sd(bookings),
+            av_conv_rate = mean(conv_rate),
+            uplift_2017 = sum(sessions[year(date) == 2017]) / sum(sessions[year(date) == 2015]))
+
+# join everything back together 
+prod_details <- prod_details %>% 
+  left_join(number_of_products, by = 'product_id')
+
+# scale all variables ready for clustering 
+prod_details_scaled <- prod_details %>%
+  select(-product_id) %>% 
+  scale() %>%
+  as.tibble()
+
+head(prod_details_scaled)
+
+```
+
+Now let's identify how many clusters there are in that data
+
+There seems to only be 3 with the data we have. I perhaps expected more....
+
+``` {r clusters_find_k}
+# try from 1 to 15 clusters to see what the optimal number is 
+kmeans_fun <-  function(x) {
+  obj <- kmeans(na.omit(prod_details_scaled), x)
+  return(obj$tot.withinss)
+}
+
+plot(sapply(1:15, kmeans_fun))
+```
+
+Assuming there are only 3 clusters, let's run the kmeans and put each product into it's group
+
+```{r clusters_generate}
+obj <- kmeans(prod_details_scaled, 3)
+
+prods_with_cluster <- bind_cols(prod_details, cluster = obj$cluster)
+
+prods_with_cluster %>%
+  select(product_id, product_type = cluster) %>%
+  mutate(product_type = paste0("type_", product_type)) %>% 
+  write.csv("product_groupings")
+
+```
+
+Finally Lets take a look at those three clusters and see where the differences lie..
+
+Cluster 2 looks to be the most reactive to media (impulse destinations, promotions?), cluster 3 are the high volume products (perhaps low price?) and cluster 2 has a low correlation with consumer confidence (older customers?)
+
+```{r kmeans_examine}
+prods_with_cluster %>% 
+  select(-product_id) %>% 
+  group_by(cluster) %>% 
+  summarise_all(mean)
+
+```
+
+## Question 3: predict sessions and bookings in 2018
+
+We have one model per product. we can loop though each model and ask it to predict based on the 2018 dataset
+
+First step is to create the test dataset with the same variable transformations used in the models:
+
+```{r create_test_dataset}
+train_meta <- read_csv("./data/otb_interview_task__train__meta_time_series.csv") 
+
+# tidy
+train_meta$Date <- dmy(train_meta$Date)
+
+# join datasets together 
+data_raw <- train_meta %>% 
+  mutate(weather = 1) %>%
+  spread(`Weather Index`, weather, fill = 0)
+
+# let's build the datset to what it was before and restric the dates so we have only the test date range
+date_from <- dmy("01-01-2018") 
+date_to <- max(data_raw$Date) 
+
+dates <- data_raw$Date
+
+movav_k <- 10
+adstock_rate <- 0.8
+
+data_all_time <- data_raw %>% 
+  transmute( 
+    # --------INPUT VARIABLE NAMES HERE -------   
+    DayFriday = ifelse(weekdays(Date) == "Wednesday", 1, 0),
+    DaySaturday = ifelse(weekdays(Date) == "Saturday", 1, 0),
+    DaySunday = ifelse(weekdays(Date) == "Sunday", 1, 0),
+    TV_adstock = log(adstock(`TV Ad Reach`, rate = adstock_rate) +1),
+    `Consumer Confidence Index`,
+    exchange_rate_moving_av = rollmean(`Exchange Rate`, movav_k, fill =  "extend", align = "right"),
+    `Online Visibility`,
+    online_visibility_exp = `Online Visibility`^2,
+    better_than_average_weather_days = `better than average`,
+    worse_than_Average_weather_days = `worse than average`
+  ) %>% 
+  scale() %>% 
+  data.frame() %>% 
+  bind_cols(Date = dates)
+
+data_test <- data_all_time %>% filter(Date >= date_from, Date <= date_to)
+```
+
+Then we can extract the bookings and the sessions models
+
+```{r extract_models}
+sessions_models <-  output_sessions_mmm %>% 
+  transpose() %>% 
+  pluck('result') %>% 
+  transpose() %>% 
+  pluck('model') 
+
+bookings_models <-  output_bookings_mmm %>% 
+  transpose() %>% 
+  pluck('result') %>% 
+  transpose() %>% 
+  pluck('model') 
+```
+
+finally we can map the dataset over each of the models
+
+```{r run_predictions}
+sessions_predictions <- sessions_models %>%
+  map_df(predict, newdata = data_test) %>% 
+  bind_cols(Date = data_test$Date) %>% 
+  gather(product_id, sessions, -Date) %>%
+  select(product_id, date = Date, sessions)
+
+bookings_predictions <- bookings_models %>%
+  map_df(predict, newdata = data_test) %>% 
+  bind_cols(Date = data_test$Date) %>% 
+  gather(product_id, bookings, -Date) %>%
+  select(product_id, date = Date, bookings)
+
+total_predictions <- sessions_predictions %>% 
+  left_join(bookings_predictions, by = c('product_id', 'date'))
+
+head(total_predictions)
+```
+
+It is worth sense checking to see if the results look credible
+
+I have taken a product at random, we can tag the predicted on the the actual:
+
+```{r prediction_check}
+# test to see if it looks sensible.
+product <- 91
+
+train_product %>% 
+  bind_rows(total_predictions) %>% 
+  filter(product_id == product) %>%
+  ggplot(aes(x = date, y = sessions)) + geom_line()
+```
+
+The model predicts that sessions will be about flat in 2018, or maybe down slightly
+
+Not the prettiest chart, but the explanation for this lies in the exchange rate, which has dropped in 2018:
+
+```{r prediction_check_explaination}
+# sessions seem to be down - let's see why this is. It looks liek exchange rate is responsable 
+data_all_time %>%
+  select(-DayFriday, -DaySaturday, -DaySunday) %>%
+  gather(variable, value, -Date) %>% 
+  ggplot(aes(x = Date, y = value, col = variable)) + geom_line()
+```
+
+
+
+Radix is a publication format for scientific and technical writing, native to the web. 
+
+Learn more about using Radix at <https://rstudio.github.io/radix>.
+
+
+
+
+
